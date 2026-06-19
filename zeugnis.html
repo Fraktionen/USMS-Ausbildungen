@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>USMS GAB Zeugnis</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#fff;color:#1a1f2e;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:794px;margin:0 auto;min-height:1123px}
+.header{background:linear-gradient(135deg,#07090d 0%,#0f1420 40%,#1a2a50 70%,#c9a84c 100%);padding:36px 48px;display:flex;align-items:center;gap:28px}
+.gold-line{height:3px;background:linear-gradient(90deg,#c9a84c,#e8c46a 50%,#c9a84c)}
+.doc-banner{background:#1a2a50;color:#c9a84c;text-align:center;padding:12px;font-family:"Rajdhani",sans-serif;font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase}
+.body{padding:36px 48px}
+.name-block{background:linear-gradient(135deg,#f8f9ff,#fffbf0);border:2px solid #c9a84c;border-radius:12px;padding:28px;margin-bottom:28px;text-align:center}
+.dn{font-size:10px;letter-spacing:4px;color:#7a6030;text-transform:uppercase;margin-bottom:8px}
+.name{font-family:"Rajdhani",sans-serif;font-size:38px;font-weight:700;color:#1a1f2e;margin-bottom:6px}
+.rang{font-size:15px;color:#1a2a50;font-weight:600;margin-bottom:8px}
+.status-box{display:inline-block;padding:6px 20px;border-radius:20px;font-size:12px;font-weight:700}
+.status-box.pass{background:rgba(34,197,94,.12);color:#15803d;border:1px solid rgba(34,197,94,.3)}
+.status-box.fail{background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.25)}
+.section{margin-bottom:24px}
+.section-title{font-family:"Rajdhani",sans-serif;font-size:12px;font-weight:700;color:#1a2a50;text-transform:uppercase;letter-spacing:3px;border-bottom:2px solid #c9a84c;padding-bottom:6px;margin-bottom:14px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-box{background:#f8f9ff;border:1px solid #e2e4f0;border-radius:6px;padding:10px 14px}
+.info-label{font-size:9px;color:#7a8098;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
+.info-val{font-size:14px;font-weight:600;color:#1a1f2e}
+.tag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.tag-box{background:linear-gradient(135deg,#f8f9ff,#fffbf0);border:1px solid #c9a84c;border-radius:8px;padding:14px;text-align:center}
+.tag-num{font-family:"Rajdhani",sans-serif;font-size:24px;font-weight:700;color:#1a2a50}
+.tag-sub{font-size:9px;color:#7a8098;letter-spacing:1px;text-transform:uppercase;margin:2px 0}
+.tag-pts{font-family:"Share Tech Mono",monospace;font-size:16px;font-weight:bold}
+.tag-bar{height:4px;background:#e8eaf0;border-radius:2px;overflow:hidden;margin-top:6px}
+.tag-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#1a2a50,#c9a84c)}
+.score-main{background:linear-gradient(135deg,#1a2a50,#0f1420);border-radius:10px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;color:#fff}
+.score-num{font-family:"Share Tech Mono",monospace;font-size:36px;color:#c9a84c;font-weight:bold}
+.score-pct{font-family:"Rajdhani",sans-serif;font-size:22px;font-weight:700}
+.score-label{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.5);margin-top:2px;text-transform:uppercase}
+.gold-div{height:2px;background:linear-gradient(90deg,transparent,#c9a84c 30%,#e8c46a 70%,transparent);margin:20px 0}
+.footer{border-top:2px solid #e2e4f0;padding-top:20px;display:flex;justify-content:space-between;align-items:flex-end;margin-top:24px}
+.sig{text-align:center}
+.sig-line{width:180px;border-bottom:1px solid #1a1f2e;margin-bottom:6px;height:44px}
+.sig-label{font-size:9px;color:#7a8098;letter-spacing:1px}
+.watermark{text-align:center;margin-top:18px;font-size:9px;color:#c8ccd8;letter-spacing:3px;text-transform:uppercase}
+.confidential{background:#1a2a50;color:#c9a84c;text-align:center;padding:6px;font-size:8px;letter-spacing:4px;text-transform:uppercase;margin-top:12px}
+.detail-row{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:5px;margin-bottom:6px;font-size:11px}
+.detail-row.ok{background:rgba(34,197,94,.06);border-left:3px solid #166534}
+.detail-row.bad{background:rgba(239,68,68,.06);border-left:3px solid #991b1b}
+.detail-row.half{background:rgba(245,158,11,.06);border-left:3px solid #92400e}
+.detail-row.txt{background:rgba(201,168,76,.06);border-left:3px solid #92712a}
+.detail-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.detail-q{flex:1;color:#1e293b;line-height:1.5}
+.detail-ans{font-size:10px;color:#64748b;margin-top:2px}
+.detail-pts{font-family:Share Tech Mono,monospace;font-size:12px;font-weight:bold;white-space:nowrap;flex-shrink:0}
+@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}.no-print{display:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="gold-line"></div>
+  <div class="header">
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <polygon points="40,4 76,22 76,58 40,76 4,58 4,22" fill="rgba(201,168,76,0.15)" stroke="#c9a84c" stroke-width="2"/>
+      <circle cx="40" cy="40" r="14" fill="none" stroke="#2a5fd4" stroke-width="1.5"/>
+      <text x="40" y="44" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani" font-weight="700" font-size="10" letter-spacing="1">USMS</text>
+    </svg>
+    <div style="color:#fff">
+      <div style="font-size:10px;letter-spacing:4px;color:rgba(201,168,76,.8);text-transform:uppercase;margin-bottom:6px">United States Marshals Service · Senora City</div>
+      <div style="font-family:Rajdhani,sans-serif;font-size:32px;font-weight:700;letter-spacing:3px;margin-bottom:4px">Ausbildungszeugnis</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);letter-spacing:2px">Grundausbildungsbeurteilung (GAB) · Offizielles Dokument</div>
+    </div>
+  </div>
+  <div class="gold-line"></div>
+  <div class="doc-banner" id="zBanner">A U S B I L D U N G S Z E U G N I S</div>
+  <div class="body">
+    <div class="name-block">
+      <div class="dn" id="zDN"></div>
+      <div class="name" id="zName"></div>
+      <div class="rang" id="zRang"></div>
+      <div style="font-size:11px;color:#7a6030;margin-top:4px;letter-spacing:1px" id="zTyp"></div>
+      <div class="status-box" id="zStatus"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Dienstinformationen</div>
+      <div class="info-grid" id="zInfoGrid"></div>
+    </div>
+    <div class="gold-div"></div>
+    <div class="section">
+      <div class="section-title">Gesamtergebnis</div>
+      <div class="score-main" id="zScore"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Ergebnisse nach Tag</div>
+      <div class="tag-grid" id="zTags"></div>
+    </div>
+    <div class="gold-div"></div>
+    <div class="section">
+      <div class="section-title">Beurteilung durch Ausbilder</div>
+      <div style="background:#f8f9ff;border:1px solid #e2e4f0;border-radius:6px;padding:14px;min-height:70px">
+        <p style="font-size:12px;color:#7a8098;font-style:italic">Handschriftliche Beurteilung / Stempel</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Detaillierte Auswertung</div>
+      <div id="zDetails"></div>
+    </div>
+    <div class="gold-div"></div>
+    <div class="footer" id="zFooter"></div>
+    <div class="watermark">U.S. Marshals Service · Senora City · Offizielles Dokument</div>
+  </div>
+  <div class="confidential">vertraulich · nur für den internen gebrauch · usms senora city</div>
+</div>
+<script>
+var d = JSON.parse(sessionStorage.getItem('usms_zeugnis') || 'null');
+if (!d) { document.body.innerHTML = '<p style="padding:40px;font-family:Arial">Keine Daten.</p>'; } else {
+  var passed = d.passed;
+  var now = new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('zDN').textContent = 'Dienstnummer ' + (d.dn || '–');
+  if(d.testTyp) document.getElementById('zBanner').textContent = d.testTyp.toUpperCase();
+  if(d.testTyp) document.getElementById('zTyp').textContent = d.testTyp;
+  document.getElementById('zName').textContent = d.name || '–';
+  document.getElementById('zRang').textContent = d.rang || '–';
+  var sb = document.getElementById('zStatus');
+  sb.textContent = passed ? '✔ BESTANDEN' : '✘ NICHT BESTANDEN';
+  sb.className = 'status-box ' + (passed ? 'pass' : 'fail');
+  document.getElementById('zInfoGrid').innerHTML =
+    box('Name', d.name) + box('Dienstnummer', d.dn) +
+    box('Rang', d.rang) + box('Ausbilder', d.ausbilder) +
+    box('Prüfungsdatum', d.ts) + box('Ausgestellt am', now);
+  var scoreColor = passed ? '#22c55e' : '#ef4444';
+  document.getElementById('zScore').innerHTML =
+    '<div><div class="score-label">Gesamtpunkte</div><div class="score-num">'+d.score+' / '+d.maxScore+'</div></div>' +
+    '<div style="text-align:center"><div class="score-label">Prozent</div><div class="score-pct" style="color:'+scoreColor+'">'+d.pct+'%</div></div>' +
+    '<div style="text-align:right"><div class="score-label">Ergebnis</div><div class="score-pct" style="color:'+scoreColor+'">'+(passed?'BESTANDEN':'NICHT BESTANDEN')+'</div></div>';
+  document.getElementById('zTags').innerHTML = d.tagResults.map(function(tr) {
+    return '<div class="tag-box"><div class="tag-num">Tag '+tr.tag+'</div>' +
+      '<div class="tag-sub">'+['Grundlagen','Einsatz','Teamarbeit'][tr.tag-1]+'</div>' +
+      '<div class="tag-pts" style="color:'+(tr.pct>=65?'#1a8a3d':'#dc2626')+'">'+tr.got+' / '+tr.max+'</div>' +
+      '<div class="tag-sub">'+tr.pct+'%</div>' +
+      '<div class="tag-bar"><div class="tag-fill" style="width:'+tr.pct+'%"></div></div></div>';
+  }).join('');
+  var docNum = 'USMS-GAB-' + (d.dn || '000') + '-' + Date.now().toString(36).toUpperCase();
+  // Detailed results
+  document.getElementById('zDetails').innerHTML = (d.results||[]).map(function(r){
+    var icon = r.status==='ok' ? '✓' : r.status==='half' ? '◑' : r.status==='txt' ? '✎' : '✗';
+    var ptsColor = r.pts>=r.q.pts ? '#166534' : r.pts>0 ? '#92400e' : '#991b1b';
+    var tag = r.q.tag ? '[Tag '+r.q.tag+'] ' : '';
+    return '<div class="detail-row '+r.status+'">' +
+      '<div class="detail-icon">'+icon+'</div>' +
+      '<div class="detail-q">' +
+        '<div>'+tag+esc(r.q.text||'')+'</div>' +
+        '<div class="detail-ans">Antwort: '+esc(r.label||'(keine Antwort)')+'</div>' +
+      '</div>' +
+      '<div class="detail-pts" style="color:'+ptsColor+'">'+r.pts+'/'+r.q.pts+'</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('zFooter').innerHTML =
+    '<div class="sig"><div class="sig-line"></div><div class="sig-label">Unterschrift Ausbilder</div><div style="font-size:10px;color:#1a2a50;margin-top:2px">'+esc(d.decName)+' · '+esc(d.decDN)+'</div></div>' +
+    '<div style="text-align:center"><div style="font-size:9px;color:#7a8098;letter-spacing:2px;margin-bottom:3px">DOKUMENTNUMMER</div><div style="font-family:Share Tech Mono,monospace;font-size:13px;color:#1a2a50;font-weight:bold;letter-spacing:2px">'+docNum+'</div></div>' +
+    '<div class="sig"><div class="sig-line"></div><div class="sig-label">Unterschrift Rekrut</div><div style="font-size:10px;color:#1a2a50;margin-top:2px">'+esc(d.name)+'</div></div>';
+  window.onload = function() { window.print(); };
+}
+function box(label, val) { return '<div class="info-box"><div class="info-label">'+label+'</div><div class="info-val">'+esc(val||'–')+'</div></div>'; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

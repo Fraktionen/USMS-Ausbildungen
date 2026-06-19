@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="de"><html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USMS — Ausbildungsportal</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<!-- Firebase MUSS vor allem anderen geladen werden -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDpFqHGLiZ6gJaf-K8Qa3dYMr9Bmq7gdLQ",
+  authDomain:"usms-seite.firebaseapp.com",
+  projectId:"usms-seite",
+  storageBucket:"usms-seite.firebasestorage.app",
+  messagingSenderId:"697887473009",
+  appId:"1:697887473009:web:54674a34ea9982dbdf0ad0"
+});
+var DB = firebase.firestore();
+var DISCORD_CLIENT_ID = "1516560370389483610";
+var ADMIN_IDS = [
+  "1088404945323167745","974749925239828520","1403712702609625153",
+  "1263820208569847871","1309587082028519545","1317575088983244871"
+];
+</script>
+
+<style>
+:root{--bg:#07090d;--bg2:#0b0e14;--bg3:#0f1420;--gold:#c9a84c;--gold2:#e8c46a;--blue:#2a5fd4;--blue2:#4a7fe8;--text:#e8eef8;--dim:#7a90b0;--dim2:#3a4a60;--border:rgba(201,168,76,.18);--border2:rgba(201,168,76,.35);--green:#22c55e;--red:#ef4444;--orange:#f59e0b;--purple:#8b5cf6;--card:rgba(11,14,20,.96);--shadow:0 16px 56px rgba(0,0,0,.8)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(201,168,76,.012) 50px),repeating-linear-gradient(90deg,transparent,transparent 49px,rgba(201,168,76,.012) 50px)}
+.bg-glow{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 50% 30% at 50% 0%,rgba(42,95,212,.08),transparent 70%)}
+.scr{display:none;position:relative;z-index:3;min-height:100vh}
+.scr.on{display:flex;flex-direction:column}
+#loginScr.on{align-items:center;justify-content:center}
+#fbScr.on{align-items:center;justify-content:center}
+#analyseScr.on{align-items:center;justify-content:center}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(201,168,76,.3)}50%{box-shadow:0 0 28px rgba(201,168,76,.6)}}
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes borderPulse{0%,100%{border-color:rgba(201,168,76,.2)}50%{border-color:rgba(201,168,76,.5)}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:none;border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .16s;outline:none;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#8a6f20);color:#0a0c10;font-weight:800}
+.btn-gold:hover{box-shadow:0 5px 22px rgba(201,168,76,.4)}
+.btn-discord{background:#5865f2;color:#fff;font-size:13px;padding:13px 24px;border-radius:6px;width:100%;justify-content:center;gap:10px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .16s}
+.btn-discord:hover{background:#4752c4;box-shadow:0 5px 22px rgba(88,101,242,.4)}
+.btn-s{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);cursor:pointer}
+.btn-s:hover{border-color:var(--gold2)}
+.btn-r{background:linear-gradient(135deg,#dc2626,#7f1d1d);color:#fff;cursor:pointer}
+.btn-g{background:linear-gradient(135deg,var(--green),#15803d);color:#fff;cursor:pointer}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--dim);cursor:pointer}
+.btn-ghost:hover{border-color:var(--gold);color:var(--text)}
+.btn-sm{padding:5px 11px;font-size:10px;letter-spacing:1px}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:5px}
+.fi{width:100%;background:rgba(4,6,12,.9);border:1px solid var(--border);border-radius:4px;padding:10px 13px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--gold)}
+select.fi{appearance:none;cursor:pointer}
+textarea.fi{resize:vertical;font-family:'Exo 2',sans-serif;min-height:80px}
+.err{color:var(--red);font-size:11px;margin-top:6px;display:none;padding:6px 10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:3px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,.35)}
+.lbox{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:42px 48px;width:100%;max-width:440px;box-shadow:var(--shadow);animation:borderPulse 4s infinite,slideUp .5s cubic-bezier(.16,1,.3,1);position:relative}
+.lbox::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.lbadge{display:block;margin:0 auto 22px;filter:drop-shadow(0 0 16px rgba(201,168,76,.5));animation:float 4s ease-in-out infinite}
+.lh1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:5px;text-align:center;text-transform:uppercase;margin-bottom:3px}
+.lsub{font-size:9px;letter-spacing:2.5px;color:var(--dim);text-align:center;margin-bottom:24px}
+.div{height:1px;background:var(--border);margin:16px 0}
+.topbar{background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);padding:0 22px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5);flex-shrink:0;position:relative}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold2) 70%,transparent);background-size:200% 100%;animation:shimmer 5s linear infinite}
+.tlogo{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--gold);letter-spacing:4px;margin-right:22px;white-space:nowrap;flex-shrink:0}
+.tlogo span{color:var(--dim);font-size:8px;letter-spacing:2px;display:block;margin-top:-2px}
+.tabs{display:flex;flex:1;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:0 14px;height:54px;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--gold);border-bottom-color:var(--gold);background:rgba(201,168,76,.06)}
+.tright{margin-left:auto;display:flex;align-items:center;gap:8px;padding-left:10px}
+.uchip{display:flex;align-items:center;gap:6px;background:rgba(201,168,76,.08);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:10px;color:var(--gold);font-family:'Share Tech Mono',monospace}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+.panel{flex:1;padding:24px;max-width:1200px;margin:0 auto;width:100%}
+.tp{display:none;animation:fadeIn .22s ease}
+.tp.on{display:block}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.st{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;white-space:nowrap;color:var(--gold)}
+.sl{flex:1;height:1px;background:var(--border);min-width:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.full{grid-column:1/-1}
+@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.hb-day{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.hb-day-header{background:linear-gradient(135deg,rgba(42,95,212,.15),rgba(201,168,76,.08));padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border)}
+.hb-day-num{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--gold);line-height:1}
+.hb-day-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.hb-day-sub{font-size:10px;color:var(--dim);margin-top:2px}
+.hb-day-body{padding:20px;display:none}
+.hb-day-body.open{display:block;animation:fadeIn .2s ease}
+.hb-section{background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);border-radius:6px;padding:14px 16px;margin-bottom:10px}
+.hb-section-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--gold2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.hb-rule{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;font-size:12px;color:var(--dim)}
+.hb-rule::before{content:'▸';color:var(--gold);flex-shrink:0;margin-top:1px}
+.hb-erkl{background:rgba(42,95,212,.08);border-left:2px solid var(--blue2);padding:8px 12px;margin-top:8px;font-size:11px;color:var(--dim);line-height:1.65}
+.codebox{background:rgba(201,168,76,.04);border:2px solid var(--gold);border-radius:8px;padding:22px;text-align:center;display:none;animation:cardIn .3s ease;margin-top:14px}
+.codeval{font-family:'Share Tech Mono',monospace;font-size:34px;font-weight:bold;color:var(--gold2);letter-spacing:8px;text-shadow:0 0 20px rgba(201,168,76,.5);animation:glow 2.5s infinite}
+.tcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px;cursor:pointer;transition:all .18s;animation:cardIn .28s ease}
+.tcard:hover{border-color:var(--gold);transform:translateY(-2px)}
+.thdr{background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);padding:0 22px;height:54px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;flex-shrink:0;position:relative}
+.thdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 35%,var(--gold2) 65%,transparent);background-size:200% 100%;animation:shimmer 5s linear infinite}
+.tdisp{font-family:'Share Tech Mono',monospace;font-size:18px;color:var(--text);background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:4px;padding:4px 13px;letter-spacing:3px}
+.tdisp.warn{color:var(--orange)}.tdisp.danger{color:var(--red);animation:pulse .8s infinite}
+.pbar{height:2px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:20px}
+.pfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--gold));border-radius:2px;transition:width .3s}
+.qblock{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:14px}
+.qnum{font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:7px;text-transform:uppercase}
+.qtxt{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:14px}
+.qscen{background:rgba(0,0,0,.3);border-left:2px solid var(--gold);padding:9px 12px;margin-bottom:11px;font-size:11px;color:var(--dim);line-height:1.6}
+.qopts{display:flex;flex-direction:column;gap:6px}
+.qopt{display:flex;align-items:center;gap:9px;background:rgba(4,6,12,.7);border:1px solid var(--border);border-radius:4px;padding:9px 12px;cursor:pointer;transition:all .14s;font-size:12px;user-select:none}
+.qopt:hover{border-color:var(--gold2)}
+.qopt.sel{border-color:var(--gold);background:rgba(201,168,76,.1);color:#fff}
+.qcirc,.qsq{width:13px;height:13px;flex-shrink:0;border:2px solid var(--border);transition:all .13s}
+.qcirc{border-radius:50%}.qsq{border-radius:2px}
+.qopt.sel .qcirc,.qopt.sel .qsq{border-color:var(--gold);background:var(--gold)}
+.qta{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px;resize:vertical;min-height:80px;outline:none}
+.qta:focus{border-color:var(--gold)}
+.qr{background:rgba(4,6,12,.7);border-radius:4px;padding:10px 12px;margin-bottom:6px;border-left:3px solid var(--border)}
+.qr.ok{border-left-color:var(--green)}.qr.bad{border-left-color:var(--red)}.qr.half{border-left-color:var(--orange)}.qr.txt{border-left-color:var(--gold)}
+.qrh{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:3px}
+.qrq{font-size:11px;color:var(--text);flex:1}.qrp{font-family:'Share Tech Mono',monospace;font-size:11px;white-space:nowrap}
+.qra{font-size:10px;color:var(--dim)}
+.pg{color:var(--green)}.pr{color:var(--red)}.po{color:var(--orange)}
+.swrap{flex:1;display:flex;align-items:center;justify-content:center;padding:22px}
+.scard{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:40px 48px;width:100%;max-width:520px;text-align:center;position:relative;box-shadow:var(--shadow);animation:slideUp .45s cubic-bezier(.16,1,.3,1)}
+.scard::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.smeta{display:flex;justify-content:center;gap:28px;margin:16px 0}
+.smv{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--gold2)}
+.smk{font-size:8px;letter-spacing:2px;color:var(--dim);margin-top:2px;text-transform:uppercase}
+.srules{text-align:left;background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:18px;list-style:none}
+.srules li{font-size:11px;color:var(--dim);margin-bottom:5px;padding-left:14px;position:relative}
+.srules li::before{content:'▸';position:absolute;left:0;color:var(--gold)}
+.mover{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:14px;opacity:0;pointer-events:none;transition:opacity .22s}
+.mover.on{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-top:2px solid var(--gold);border-radius:8px;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;transform:translateY(22px);transition:transform .22s;box-shadow:var(--shadow)}
+.mover.on .modal{transform:translateY(0)}
+.mhdr{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}
+.mtitle{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.mclose{background:transparent;border:none;color:var(--dim);font-size:18px;cursor:pointer;line-height:1;padding:2px 6px}
+.mclose:hover{color:var(--text)}
+.mbody{padding:22px}
+.mfoot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.akte-row{display:flex;align-items:center;gap:10px;background:rgba(201,168,76,.03);border:1px solid var(--border);border-radius:6px;padding:13px 16px;margin-bottom:8px;cursor:pointer;transition:all .16s}
+.akte-row:hover{border-color:var(--gold);transform:translateY(-1px)}
+.ausb-row{background:rgba(4,6,12,.5);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:7px;position:relative;padding-right:36px}
+.ausb-rm{position:absolute;top:8px;right:9px;background:none;border:none;color:var(--red);cursor:pointer;font-size:13px}
+.ltbl{width:100%;border-collapse:collapse}
+.ltbl th{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border)}
+.ltbl td{padding:7px 10px;border-bottom:1px solid rgba(201,168,76,.04);font-size:11px;font-family:'Share Tech Mono',monospace}
+.ltbl tr:hover td{background:rgba(201,168,76,.02)}
+.lb{display:inline-block;padding:1px 5px;border-radius:2px;font-size:8px;letter-spacing:1px;font-weight:700;text-transform:uppercase}
+.lb-l{background:rgba(42,95,212,.15);color:var(--blue2)}.lb-c{background:rgba(201,168,76,.12);color:var(--gold2)}.lb-s{background:rgba(34,197,94,.12);color:var(--green)}.lb-d{background:rgba(239,68,68,.12);color:var(--red)}.lb-a{background:rgba(139,92,246,.12);color:var(--purple)}
+.toast{position:fixed;bottom:20px;right:20px;z-index:9999;background:rgba(7,9,13,.97);border-radius:5px;padding:10px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.6);display:flex;align-items:center;gap:8px;transform:translateY(14px);opacity:0;transition:all .26s cubic-bezier(.16,1,.3,1);max-width:280px;border-left:3px solid var(--gold)}
+.toast.show{transform:translateY(0);opacity:1}
+.sbadge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700}
+.logtab.on{border-color:var(--gold);color:var(--gold)!important}
+.s-aktiv{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.s-inaktiv{background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.2)}
+.s-abgeschlossen{background:rgba(201,168,76,.12);color:var(--gold2);border:1px solid rgba(201,168,76,.25)}
+.s-bestanden{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.s-nichtbestanden{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.s-ausstehend{background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.2)}
+</style>
+</head>
+<body>
+<canvas id="cvs"></canvas>
+<div class="bg-grid"></div><div class="bg-glow"></div>
+
+<!-- LOGIN -->
+<div id="loginScr" class="scr on">
+  <div class="lbox">
+    <svg class="lbadge" width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <polygon points="40,4 76,22 76,58 40,76 4,58 4,22" fill="none" stroke="#c9a84c" stroke-width="2"/>
+      <polygon points="40,14 66,27 66,53 40,66 14,53 14,27" fill="none" stroke="#c9a84c" stroke-width="1" opacity=".4"/>
+      <circle cx="40" cy="40" r="14" fill="none" stroke="#2a5fd4" stroke-width="1.5"/>
+      <text x="40" y="44" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani" font-weight="700" font-size="10" letter-spacing="1">USMS</text>
+    </svg>
+    <div class="lh1">USMS</div>
+    <div class="lsub">Ausbildungsportal · Senora City</div>
+    <div class="div"></div>
+    <p style="font-size:11px;color:var(--dim);text-align:center;margin-bottom:16px;line-height:1.6">Ausbilder loggen sich mit Discord ein.<br>Rekruten nutzen ihren Zugangscode.</p>
+    <button class="btn-discord" id="btnDiscord" onclick="discordLogin()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      Mit Discord einloggen
+    </button>
+    <div class="div"></div>
+    <p style="font-size:9px;letter-spacing:2px;color:var(--dim);text-align:center;margin-bottom:10px">ODER REKRUT</p>
+    <div class="fg"><label class="fl">Zugangscode</label><input class="fi" id="rCode" placeholder="USMS-XXXX" style="text-align:center;letter-spacing:5px;font-size:17px"></div>
+    <button class="btn btn-s" id="btnRookie" onclick="rookieLogin()" style="width:100%;font-size:12px;padding:10px">Fortfahren →</button>
+    <div class="err" id="rErr"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScr" class="scr">
+  <div class="topbar">
+    <div class="tlogo">USMS <span>AUSBILDUNGSPORTAL</span></div>
+    <div class="tabs">
+      <button class="tab on"  id="tabBtn1">📖 Handbuch</button>
+      <button class="tab"     id="tabBtn2">🔑 Zugangscode</button>
+      <button class="tab"     id="tabBtn3">📋 Tests</button>
+      <button class="tab"     id="tabBtn4">📂 Akten</button>
+      <button class="tab"     id="tabBtn5">🎓 Weiterbildungen</button>
+      <button class="tab"     id="tabBtn6">📝 Logs</button>
+      <button class="tab"     id="tabBtn7">✏️ Tests bearbeiten</button>
+    </div>
+    <div class="tright">
+      <div class="uchip"><div class="sdot"></div><span id="uLabel">AUSBILDER</span></div>
+      <button class="btn btn-ghost btn-sm" id="btnLogout">Abmelden</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="tp on" id="t1"><div class="sh"><span class="st">GAB Rekrutenhandbuch</span><div class="sl"></div></div><div id="handbuchContent"></div></div>
+    <div class="tp" id="t2">
+      <div class="sh"><span class="st">Zugangscode erstellen</span><div class="sl"></div></div>
+      <div class="card">
+        <div class="g2">
+          <div class="fg"><label class="fl">Name des Rekruten</label><input class="fi" id="rkName" placeholder="Vorname Nachname"></div>
+          <div class="fg"><label class="fl">Dienstnummer</label><input class="fi" id="rkDN" placeholder="DN-001"></div>
+          <div class="fg"><label class="fl">Rang</label><select class="fi" id="rkRang"><option>Rekrut Marshal</option>
+              <option>Deputy Marshal</option>
+              <option>Deputy First Class Marshal</option>
+              <option>Corporal</option>
+              <option>Sergeant</option>
+              <option>Sergeant First Class</option>
+              <option>Lieutenant</option>
+              <option>Lieutenant First Class</option>
+              <option>Captain</option>
+              <option>Captain First Class</option>
+              <option>Supervisory U.S. Marshal</option>
+              <option>Assistant Chief of Staff</option>
+              <option>Chief Of Staff</option>
+              <option>Assistant Director</option>
+              <option>Director Of USMS</option></select></div>
+          <div class="fg"><label class="fl">Ausbildungstyp</label><select class="fi" id="rkTyp">
+              <option value="gab">GAB – Grundausbildung</option>
+              <option value="wb1">WB 1 – Fugitive Task Force</option>
+              <option value="wb2">WB 2 – High Risk Transport</option>
+              <option value="wb3">WB 3 – Judicial Security</option>
+              <option value="wbend">WB End – Abschlussprüfung</option>
+              <option value="overwatch">Overwatch-Ausbildung</option>
+              <option value="airsupport">Air Support Ausbildung</option>
+              <option value="funk">Funk-Ausbildung</option>
+              <option value="beanbag">Beanbag-Ausbildung</option>
+              <option value="langwaffen">Langwaffen-Ausbildung</option>
+            </select></div>
+          <div class="full"><button class="btn btn-gold" id="btnGenCode">⊕ &nbsp;Code generieren</button></div>
+        </div>
+        <div class="codebox" id="codeBox">
+          <div style="font-size:9px;color:var(--dim);letter-spacing:2px;margin-bottom:4px">ZUGANGSCODE FÜR</div>
+          <div id="codeFor" style="font-size:11px;color:var(--dim);margin-bottom:8px">–</div>
+          <div class="codeval" id="codeVal">–</div>
+          <div style="font-size:9px;color:var(--dim);margin-top:10px">Einmalig · Gültig 12 Stunden</div>
+        </div>
+        <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px">AKTIVE CODES</div>
+          <div id="activeCodes"><p style="color:var(--dim);font-size:11px">Keine aktiven Codes.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="tp" id="t3">
+      <div class="sh"><span class="st">Abgegebene Tests</span><div class="sl"></div><input class="fi" id="testSearch" style="width:200px;font-size:11px;padding:6px 10px" placeholder="Name suchen…"></div>
+      <div id="testList" class="tcards"></div>
+    </div>
+    <div class="tp" id="t4">
+      <div class="sh"><span class="st">Ausbildungsakten</span><div class="sl"></div><input class="fi" id="aktenQ" style="width:180px;font-size:11px;padding:6px 10px" placeholder="Name suchen…"><button class="btn btn-gold btn-sm" id="btnNewAkte">+ Neue Akte</button></div>
+      <div id="aktenList"></div>
+    </div>
+    <div class="tp" id="t5">
+      <div class="sh"><span class="st">Weiterbildungen</span><div class="sl"></div></div>
+      <div class="card" style="margin-bottom:16px"><p style="font-size:12px;color:var(--dim);line-height:1.7">Weiterbildungsdokumente folgen sobald sie vom USMS-Hochkommand bereitgestellt werden.</p></div>
+      <div class="g4">
+        <div class="card" style="text-align:center;cursor:pointer" id="wbCard1"><div style="font-size:28px;margin-bottom:8px">📘</div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--gold)">WB 1</div><div style="font-size:10px;color:var(--dim2);margin-top:4px">Ausstehend</div></div>
+        <div class="card" style="text-align:center;cursor:pointer" id="wbCard2"><div style="font-size:28px;margin-bottom:8px">📗</div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--gold)">WB 2</div><div style="font-size:10px;color:var(--dim2);margin-top:4px">Ausstehend</div></div>
+        <div class="card" style="text-align:center;cursor:pointer" id="wbCard3"><div style="font-size:28px;margin-bottom:8px">📕</div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--gold)">WB 3</div><div style="font-size:10px;color:var(--dim2);margin-top:4px">Ausstehend</div></div>
+        <div class="card" style="text-align:center;cursor:pointer" id="wbCardEnd"><div style="font-size:28px;margin-bottom:8px">🏆</div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--gold)">WB End</div><div style="font-size:10px;color:var(--dim2);margin-top:4px">Ausstehend</div></div>
+      </div>
+    </div>
+    <div class="tp" id="t6">
+      <div class="sh">
+        <span class="st">Aktivitäts-Logs</span><div class="sl"></div>
+        <button class="btn btn-gold btn-sm" id="btnLogPdf">📄 Logs PDF</button>
+      </div>
+      <!-- Filter Tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="btn btn-s btn-sm logtab on" id="logtab_all" onclick="filterLogs('all')">Alle Logs</button>
+        <button class="btn btn-s btn-sm logtab" id="logtab_LOGIN" onclick="filterLogs('LOGIN')">Logins</button>
+        <button class="btn btn-s btn-sm logtab" id="logtab_CODE" onclick="filterLogs('CODE')">Codes</button>
+        <button class="btn btn-s btn-sm logtab" id="logtab_SUBMIT" onclick="filterLogs('SUBMIT')">Tests</button>
+        <button class="btn btn-s btn-sm logtab" id="logtab_DECISION" onclick="filterLogs('DECISION')">Entscheidungen</button>
+        <button class="btn btn-s btn-sm logtab" id="logtab_AKTE" onclick="filterLogs('AKTE')">Akten</button>
+      </div>
+      <div class="card" style="overflow-x:auto">
+        <table class="ltbl">
+          <thead><tr><th>Zeit</th><th>Datum</th><th>Nutzer</th><th>Typ</th><th>Details</th></tr></thead>
+          <tbody id="logBody"><tr><td colspan="5" style="color:var(--dim);text-align:center;padding:18px">Keine Einträge.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tp" id="t7">
+      <div class="sh"><span class="st">Tests bearbeiten</span><div class="sl"></div></div>
+      <!-- PIN LOCK -->
+      <div id="testEditorLock" class="card" style="max-width:400px;text-align:center;padding:32px">
+        <div style="font-size:32px;margin-bottom:12px">🔒</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px">PIN erforderlich</div>
+        <div style="font-size:11px;color:var(--dim);margin-bottom:16px">Gib den PIN ein um Tests zu bearbeiten</div>
+        <div class="fg"><input class="fi" id="editorPin" type="password" placeholder="PIN" style="text-align:center;letter-spacing:6px;font-size:20px;max-width:200px;margin:0 auto"></div>
+        <div class="err" id="pinErr"></div>
+        <button class="btn btn-gold" id="btnUnlockEditor" style="margin-top:8px">Entsperren</button>
+      </div>
+      <!-- EDITOR CONTENT -->
+      <div id="testEditorContent" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div class="fg" style="margin-bottom:0">
+              <label class="fl">Testtyp bearbeiten</label>
+              <select class="fi" id="editorTestType" style="width:200px">
+                <option value="gab">GAB – Grundausbildung</option>
+                <option value="wb1">WB 1 – Fugitive Task Force</option>
+                <option value="wb2">WB 2 – High Risk Transport</option>
+                <option value="wb3">WB 3 – Judicial Security</option>
+                <option value="wbend">WB End – Abschlussprüfung</option>
+                <option value="overwatch">Overwatch-Ausbildung</option>
+                <option value="airsupport">Air Support Ausbildung</option>
+                <option value="funk">Funk-Ausbildung</option>
+                <option value="beanbag">Beanbag-Ausbildung</option>
+                <option value="langwaffen">Langwaffen-Ausbildung</option>
+              </select>
+            </div>
+            <button class="btn btn-gold btn-sm" id="btnLoadQuestions" style="margin-top:14px">📂 Laden</button>
+            <button class="btn btn-gold btn-sm" id="btnSaveQuestions" style="margin-top:14px">💾 Speichern</button>
+            <button class="btn btn-s btn-sm" id="btnAddQuestion" style="margin-top:14px">+ Frage hinzufügen</button>
+            <div class="fg" style="margin-bottom:0;margin-left:auto">
+              <label class="fl">PIN ändern</label>
+              <div style="display:flex;gap:6px">
+                <input class="fi" id="newPinInput" type="password" placeholder="Neuer PIN" style="width:140px;font-size:12px">
+                <button class="btn btn-s btn-sm" id="btnChangePin" style="margin-top:0;white-space:nowrap">Ändern</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="questionEditor"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK SCREEN -->
+<div id="fbScr" class="scr">
+  <div style="background:var(--card);border:1px solid var(--border2);border-top:2px solid var(--gold);border-radius:10px;padding:36px 44px;width:100%;max-width:480px;text-align:center;animation:slideUp .4s cubic-bezier(.16,1,.3,1)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:3px;color:var(--gold);margin-bottom:4px">Test abgegeben!</div>
+    <p style="color:var(--dim);font-size:11px;margin-bottom:16px">Bitte gib kurz dein Feedback.</p>
+    <div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px">BEWERTUNG (1–5 STERNE)</div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:16px" id="starRow">
+      <button onclick="setStar(1)" id="star1" style="font-size:30px;cursor:pointer;color:var(--dim2);background:none;border:none;line-height:1;transition:all .12s">★</button>
+      <button onclick="setStar(2)" id="star2" style="font-size:30px;cursor:pointer;color:var(--dim2);background:none;border:none;line-height:1;transition:all .12s">★</button>
+      <button onclick="setStar(3)" id="star3" style="font-size:30px;cursor:pointer;color:var(--dim2);background:none;border:none;line-height:1;transition:all .12s">★</button>
+      <button onclick="setStar(4)" id="star4" style="font-size:30px;cursor:pointer;color:var(--dim2);background:none;border:none;line-height:1;transition:all .12s">★</button>
+      <button onclick="setStar(5)" id="star5" style="font-size:30px;cursor:pointer;color:var(--dim2);background:none;border:none;line-height:1;transition:all .12s">★</button>
+    </div>
+    <div class="fg"><label class="fl">Was hat dir gefallen?</label><textarea class="fi" id="fbGood" rows="2" placeholder="…" style="font-family:'Exo 2',sans-serif"></textarea></div>
+    <div class="fg"><label class="fl">Was hättest du dir gewünscht?</label><textarea class="fi" id="fbWish" rows="2" placeholder="…" style="font-family:'Exo 2',sans-serif"></textarea></div>
+    <button class="btn btn-gold" onclick="submitFeedback()" style="width:100%;margin-top:5px;font-size:13px;padding:11px">Senden ✔</button>
+    <button class="btn btn-ghost btn-sm" onclick="submitFeedback()" style="width:100%;margin-top:6px">Überspringen</button>
+  </div>
+</div>
+
+<!-- LERNANALYSE SCREEN -->
+<div id="analyseScr" class="scr">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px 34px;width:100%;max-width:560px;animation:slideUp .4s cubic-bezier(.16,1,.3,1)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;color:var(--gold);margin-bottom:14px">Deine Lernanalyse</div>
+    <div id="analyseText" style="background:rgba(201,168,76,.04);border:1px solid var(--border);border-radius:4px;padding:13px;font-size:12px;color:var(--text);line-height:1.78;white-space:pre-wrap;min-height:80px">
+      <div style="display:flex;align-items:center;gap:7px;color:var(--dim);font-size:11px"><span>Analyse wird erstellt</span><span style="animation:pulse .9s infinite;display:inline-block">.</span><span style="animation:pulse .9s infinite .22s;display:inline-block">.</span><span style="animation:pulse .9s infinite .44s;display:inline-block">.</span></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="showS('loginScr');document.getElementById('rCode').value=''" style="margin-top:14px;width:100%">← Zurück zum Login</button>
+  </div>
+</div>
+
+<!-- TEST SCREEN -->
+<div id="testScr" class="scr">
+  <div class="thdr">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:3px;flex-shrink:0" id="testTypHeader">USMS · GAB</div>
+    <div class="tdisp" id="tDisp">30:00</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <span id="tName" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim)"></span>
+      <div id="lBdg" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);border-radius:3px;padding:2px 8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red)">Abgänge: <span id="lCnt">0</span></div>
+    </div>
+  </div>
+  <div id="startP" class="swrap">
+    <div class="scard">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:4px;color:var(--gold);margin-bottom:4px" id="testTitelEl">GAB PRÜFUNG</div>
+      <p style="color:var(--dim);font-size:11px;margin-bottom:16px" id="testUntertitelEl">Grundausbildungsbeurteilung – USMS Senora City</p>
+      <div class="smeta"><div><div class="smv">30</div><div class="smk">Minuten</div></div><div><div class="smv" id="sqCnt">25</div><div class="smk">Fragen</div></div><div><div class="smv">65%</div><div class="smk">Bestehen</div></div></div>
+      <ul class="srules"><li>Du hast <strong>30 Minuten</strong></li><li>Alle 3 Tage werden abgeprüft</li><li>65% der Punkte zum Bestehen</li><li>Bei Ablauf automatische Abgabe</li></ul>
+      <button class="btn btn-gold" id="btnStartTest" style="width:100%;font-size:14px;padding:13px">▶ &nbsp;Prüfung starten</button>
+    </div>
+  </div>
+  <div id="questP" style="display:none">
+    <div style="flex:1;padding:22px;max-width:860px;margin:0 auto;width:100%">
+      <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+      <div id="qCont"></div>
+      <div style="text-align:center;padding:22px 0"><button class="btn btn-gold" id="btnSubmit" style="padding:12px 30px">Test abgeben ✔</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="mover" id="revMod">
+  <div class="modal" style="max-width:820px">
+    <div class="mhdr"><div class="mtitle" id="revTitle">Test-Auswertung</div><button class="mclose" id="btnCloseRev">✕</button></div>
+    <div class="mbody">
+      <div class="g3" style="margin-bottom:16px">
+        <div class="card" style="text-align:center;padding:14px"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:4px">PUNKTE</div><div id="revScore" style="font-family:'Share Tech Mono';font-size:22px">–</div></div>
+        <div class="card" style="text-align:center;padding:14px"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:4px">ERGEBNIS</div><div id="revPass" style="font-family:'Rajdhani';font-size:18px;font-weight:700">–</div></div>
+        <div class="card" style="text-align:center;padding:14px"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:4px">ABGÄNGE</div><div id="revLeaves" style="font-family:'Share Tech Mono';font-size:22px;color:var(--red)">–</div></div>
+      </div>
+      <div id="revLeaveLog" style="margin-bottom:12px"></div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:4px">REKRUT-FEEDBACK</div>
+      <div id="revFeedback" style="margin-bottom:12px;font-size:12px;color:var(--dim)">Kein Feedback</div>
+      <div style="height:1px;background:var(--border);margin:12px 0"></div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px">FRAGEN & ANTWORTEN</div>
+      <div id="revQ" style="margin-bottom:16px"></div>
+      <div style="height:1px;background:var(--border);margin:14px 0"></div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px">CHAT MIT REKRUT</div>
+      <div id="chatWrap" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;padding:1px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:7px;margin-bottom:14px">
+        <input class="fi" id="chatIn" placeholder="Nachricht an Rekrut…" style="flex:1;font-size:12px" onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn btn-gold btn-sm" onclick="sendChat()">→</button>
+      </div>
+      <div style="height:1px;background:var(--border);margin:14px 0"></div>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="fg"><label class="fl">Name des Ausbilders</label><input class="fi" id="decName" placeholder="Name" style="font-size:12px"></div>
+        <div class="fg"><label class="fl">Dienstnummer</label><input class="fi" id="decDN" placeholder="DN-XXX" style="font-size:12px"></div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-g" id="btnBestanden">✔ Bestanden</button>
+      <button class="btn btn-r" id="btnNichtBestanden">✘ Nicht bestanden</button>
+      <button class="btn btn-ghost" id="btnAusstehend">⏳ Ausstehend</button>
+      <button class="btn btn-gold btn-sm" id="btnZeugnis" style="margin-left:auto">📄 Zeugnis erstellen</button>
+    </div>
+  </div>
+</div>
+
+<!-- AKTE MODAL -->
+<div class="mover" id="akteMod">
+  <div class="modal" style="max-width:640px">
+    <div class="mhdr"><div class="mtitle" id="akteModalTitle">Ausbildungsakte</div><button class="mclose" id="btnCloseAkte">✕</button></div>
+    <div class="mbody">
+      <div class="g2">
+        <div class="fg"><label class="fl">IC-Name</label><input class="fi" id="akteIC" placeholder="Vorname Nachname"></div>
+        <div class="fg"><label class="fl">Dienstnummer</label><input class="fi" id="akteDN2" placeholder="DN-001"></div>
+        <div class="fg"><label class="fl">Rang</label><select class="fi" id="akteRang"><option>Rekrut Marshal</option>
+              <option>Deputy Marshal</option>
+              <option>Deputy First Class Marshal</option>
+              <option>Corporal</option>
+              <option>Sergeant</option>
+              <option>Sergeant First Class</option>
+              <option>Lieutenant</option>
+              <option>Lieutenant First Class</option>
+              <option>Captain</option>
+              <option>Captain First Class</option>
+              <option>Supervisory U.S. Marshal</option>
+              <option>Assistant Chief of Staff</option>
+              <option>Chief Of Staff</option>
+              <option>Assistant Director</option>
+              <option>Director Of USMS</option></select></div>
+        <div class="fg"><label class="fl">Status</label><select class="fi" id="akteStatus"><option value="aktiv">Aktiv</option><option value="abgeschlossen">Abgeschlossen</option><option value="inaktiv">Inaktiv</option></select></div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:10px 0;padding-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+          <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">AUSBILDUNGSEINTRÄGE</div>
+          <button class="btn btn-s btn-sm" id="btnAddAusb">+ Eintrag</button>
+        </div>
+        <div id="ausbListModal"></div>
+      </div>
+      <div class="fg"><label class="fl">Notizen</label><textarea class="fi" id="akteNotiz" rows="3" placeholder="Interne Notizen…"></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gold" id="btnSaveAkte">💾 Speichern</button>
+      <button class="btn btn-r btn-sm" id="btnDelAkte" style="display:none">🗑 Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- WB MODAL -->
+<div class="mover" id="wbMod">
+  <div class="modal" style="max-width:480px">
+    <div class="mhdr"><div class="mtitle" id="wbTitle">Weiterbildung</div><button class="mclose" id="btnCloseWb">✕</button></div>
+    <div class="mbody" id="wbBody"></div>
+  </div>
+</div>
+
+<!-- LOG PDF MODAL -->
+<div class="mover" id="logPdfMod">
+  <div class="modal" style="max-width:520px">
+    <div class="mhdr"><div class="mtitle">📄 Logs PDF erstellen</div><button class="mclose" onclick="closeMod('logPdfMod')">✕</button></div>
+    <div class="mbody">
+      <p style="font-size:12px;color:var(--dim);margin-bottom:16px">Wähle für welchen Ausbilder du ein PDF erstellen möchtest.</p>
+      <div class="fg"><label class="fl">Ausbilder / Person</label>
+        <select class="fi" id="logPdfUser" style="font-size:12px">
+          <option value="all">— Alle Logs —</option>
+        </select>
+      </div>
+      <div style="background:rgba(201,168,76,.04);border:1px solid var(--border);border-radius:6px;padding:14px;margin-top:8px">
+        <div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px">DAS PDF ENTHÄLT</div>
+        <div style="font-size:11px;color:var(--text);line-height:2">
+          ✓ Alle Aktivitäten mit Datum & Uhrzeit<br>
+          ✓ Erstellte Zugangscodes<br>
+          ✓ Abgegebene Tests (bestanden / nicht bestanden)<br>
+          ✓ Entscheidungen (Angenommen / Abgelehnt)<br>
+          ✓ Erstellte / bearbeitete Akten
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gold" id="btnGenLogPdf">📄 PDF erstellen</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeMod('logPdfMod')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ALLES IN EINEM SCRIPT OHNE MODULE -->
+<script>
+// ═══════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════
+(function(){
+  try{
+  var cv=document.getElementById('cvs');
+  if(!cv||!cv.getContext){return;}
+  var cx=cv.getContext('2d'),W,H,P=[];
+  function R(){W=cv.width=innerWidth;H=cv.height=innerHeight}R();window.addEventListener('resize',R);
+  var C=['rgba(201,168,76,','rgba(232,196,106,','rgba(42,95,212,'];
+  function mk(){return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*.9+.3,c:C[Math.floor(Math.random()*3)],a:Math.random()*.5+.1,da:.0015+Math.random()*.001}}
+  for(var i=0;i<60;i++)P.push(mk());
+  function draw(){cx.clearRect(0,0,W,H);for(var i=0;i<P.length;i++)for(var j=i+1;j<P.length;j++){var d=Math.hypot(P[i].x-P[j].x,P[i].y-P[j].y);if(d<110){cx.beginPath();cx.strokeStyle='rgba(201,168,76,'+(1-d/110)*.04+')';cx.lineWidth=.4;cx.moveTo(P[i].x,P[i].y);cx.lineTo(P[j].x,P[j].y);cx.stroke()}}
+  P.forEach(function(p,i){p.x+=p.vx;p.y+=p.vy;p.a-=p.da;if(p.a<=0||p.x<-5||p.x>W+5||p.y<-5||p.y>H+5){P[i]=mk();return}cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=p.c+p.a+')';cx.fill()});requestAnimationFrame(draw);}draw();
+  }catch(e){}
+})();
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function toast(msg,type){
+  var cl={info:'var(--blue2)',success:'var(--green)',warn:'var(--orange)',error:'var(--red)',gold:'var(--gold)'}[type||'info'];
+  var t=document.createElement('div');t.className='toast';t.style.borderLeftColor=cl;t.textContent=msg;
+  document.body.appendChild(t);setTimeout(function(){t.classList.add('show')},10);
+  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove()},300)},3200);
+}
+function h(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function showS(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});document.getElementById(id).classList.add('on')}
+function openMod(id){document.getElementById(id).classList.add('on')}
+function closeMod(id){document.getElementById(id).classList.remove('on')}
+function showErr(id,msg){var el=document.getElementById(id);el.textContent=msg;el.style.display='block'}
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+var S={user:null,rookie:null,codes:{},tests:[],akten:[],logs:[],leaveLog:[],leaveStart:null,stars:0,curId:null};
+var PASS=0.65, DUR=30*60;
+var curRevId=null, akteId=null, ausbItems=[];
+var testTimer=null, testAntworten={}, testTimeLeft=DUR;
+
+// ═══════════════════════════════════════════
+// DB
+// ═══════════════════════════════════════════
+function dbSet(col,id,data){return DB.collection(col).doc(id).set(JSON.parse(JSON.stringify(data||{})))}
+function dbGet(col,id){return DB.collection(col).doc(id).get().then(function(s){return s.exists?s.data():null})}
+function dbAll(col,ord,dir){return DB.collection(col).orderBy(ord||'tsRaw',dir||'desc').get().then(function(s){return s.docs.map(function(d){return d.data()})})}
+function dbDel(col,id){return DB.collection(col).doc(id).delete()}
+function dbUpd(col,id,data){return DB.collection(col).doc(id).update(data)}
+
+function addLog(u,t,d){
+  var n=new Date();
+  var e={ts:n.toLocaleTimeString('de-DE'),date:n.toLocaleDateString('de-DE'),user:u,type:t,detail:d,tsRaw:Date.now()};
+  S.logs.unshift(e);DB.collection('usms_logs').add(e).catch(function(){});
+}
+
+// ═══════════════════════════════════════════
+// DISCORD LOGIN
+// ═══════════════════════════════════════════
+function getRedirectURI(){
+  var path=window.location.pathname.replace(/\/[^\/]*$/,'/');
+  return window.location.origin+path+'ausbildung-callback.html';
+}
+
+function discordLogin(){
+  var params=new URLSearchParams({
+    client_id:DISCORD_CLIENT_ID,
+    redirect_uri:getRedirectURI(),
+    response_type:'token',
+    scope:'identify'
+  });
+  window.location.href='https://discord.com/api/oauth2/authorize?'+params.toString();
+}
+window.discordLogin = discordLogin;
+
+async function checkDiscordToken(token){
+  try{
+    var res=await fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+token}});
+    if(!res.ok)throw new Error('invalid');
+    var user=await res.json();
+    if(ADMIN_IDS.indexOf(user.id)===-1){
+      toast('Kein Zugriff – Discord ID nicht autorisiert.','error');
+      sessionStorage.removeItem('ausb_token');return;
+    }
+    S.user=user;sessionStorage.setItem('ausb_token',token);
+    S.tests=await dbAll('usms_gab_tests');
+    S.akten=await dbAll('usms_akten','tsRaw','desc');
+    addLog(user.username,'LOGIN','Discord: '+user.id);
+    document.getElementById('uLabel').textContent=(user.username||'AUSBILDER').toUpperCase();
+    showS('adminScr');renderHandbuch();renderCodes();
+    toast('Willkommen, '+user.username,'gold');
+  }catch(e){console.error('LOGIN ERROR:', e, e.message, e.code);sessionStorage.removeItem('ausb_token');toast('Fehler: '+e.message,'error')}
+}
+
+window.rookieLogin = async function rookieLogin(){
+  var code=document.getElementById('rCode').value.trim().toUpperCase();
+  document.getElementById('rErr').style.display='none';
+  if(!code){showErr('rErr','Code eingeben.');return}
+  var data=await dbGet('usms_codes',code);
+  if(!data&&S.codes[code])data=S.codes[code];
+  if(!data){showErr('rErr','Code nicht gefunden.');return}
+  if(data.used){showErr('rErr','Code bereits verwendet.');return}
+  if(Date.now()>data.expiry){showErr('rErr','Code abgelaufen.');return}
+  dbUpd('usms_codes',code,{used:true}).catch(function(){});
+  S.rookie=Object.assign({},data,{code:code});
+  // Load correct questions for test type
+  await loadQuestionsForType(data.typ || 'gab');
+  initTest();
+}
+
+async function loadQuestionsForType(typ){
+  var col = 'usms_questions_' + (typ||'gab');
+  try{
+    var rows = await dbAll(col, 'idx', 'asc');
+    if(rows.length){
+      GAB_FRAGEN_ACTIVE = rows;
+    } else {
+      GAB_FRAGEN_ACTIVE = getDefaultQuestionsForType(typ);
+    }
+  }catch(e){
+    GAB_FRAGEN_ACTIVE = getDefaultQuestionsForType(typ);
+  }
+}
+
+function doLogout(){S.user=null;sessionStorage.removeItem('ausb_token');showS('loginScr');toast('Abgemeldet.','info')}
+
+// Auto-Login wenn Token vorhanden
+var savedToken=sessionStorage.getItem('ausb_token');
+if(savedToken)checkDiscordToken(savedToken);
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function goTab(num){
+  for(var i=1;i<=7;i++){
+    var tp=document.getElementById('t'+i);
+    var tb=document.getElementById('tabBtn'+i);
+    if(tp)tp.classList.toggle('on',i===num);
+    if(tb)tb.classList.toggle('on',i===num);
+  }
+  if(num===3)renderTests();
+  if(num===4)renderAkten();
+  if(num===6)renderLogs();
+}
+
+// ═══════════════════════════════════════════
+// HANDBUCH
+// ═══════════════════════════════════════════
+var HANDBUCH=[
+  // ── GAB TAG 1-3 ──────────────────────────
+  {tag:1,title:'GAB – Grundlagen & Einführung',sub:'Willkommen, Aufgaben, Disziplin, Waffen, Funk',kategorie:'gab',sections:[
+    {title:'Willkommen beim USMS',regeln:['Du repräsentierst die Behörde','Dein Verhalten spiegelt die gesamte Einheit wider'],erkl:'Du bist Teil des United States Marshals Service. Verhalten und Auftreten bestimmen das Bild der Einheit.'},
+    {title:'Aufgaben des USMS',regeln:['Haftbefehle vollstrecken','Flüchtige festnehmen','Gerichte schützen'],erkl:'Diese Aufgaben bestimmen dein Handeln im Dienst. Jede Entscheidung muss sich daran orientieren.'},
+    {title:'Verhalten & Disziplin',regeln:['Befehle sofort ausführen','Respekt zeigen','Ruhig bleiben'],erkl:'Disziplin sorgt dafür, dass alle im Team gleich handeln. Das erhöht Sicherheit und Erfolg im Einsatz.'},
+    {title:'Umgang mit Dienstwaffen',regeln:['Nur bei Bedarf ziehen','Sicher führen','Umgebung beachten'],erkl:'Die Waffe schützt dich – aber falscher Einsatz kann Situationen eskalieren lassen.'},
+    {title:'Funk Basics',regeln:['Wer spricht','Wo bist du','Was ist passiert'],erkl:'Klare Kommunikation spart Zeit und verhindert Fehler. Jeder im Team muss sofort verstehen, was passiert.'},
+    {title:'Erwartungen an Rekruten',regeln:['Aufmerksamkeit','Disziplin','Lernbereitschaft'],erkl:'Nur wer diese Eigenschaften zeigt, wird ein verlässlicher Marshal im Einsatz.'},
+  ]},
+  {tag:2,title:'GAB – Einsatz & Praxis',sub:'Grenzkontrollen, Haftbefehle, Festnahmen, Fitness, Kolonne',kategorie:'gab',sections:[
+    {title:'Grenzkontrollen',regeln:['Fahrzeuge stoppen','Personen kontrollieren','Ruhig bleiben'],erkl:'Dein Auftreten entscheidet, ob die Situation ruhig bleibt oder eskaliert.'},
+    {title:'Haftbefehle',regeln:['Prüfen ob ein Haftbefehl vorliegt','Entsprechend handeln'],erkl:'Du darfst nur handeln, wenn es rechtlich erlaubt ist.'},
+    {title:'Festnahmen',regeln:['Klare Anweisungen geben','Person sichern','Lage melden'],erkl:'Klare Kommunikation verhindert Widerstand.'},
+    {title:'Fitness',regeln:['Körperliche Übungen absolvieren','Ausdauer trainieren'],erkl:'Einsätze sind körperlich fordernd – Vorbereitung ist entscheidend.'},
+    {title:'Kolonnenführung',regeln:['Im Team fahren','Abstand halten','Funk nutzen'],erkl:'Nur als Team funktioniert ein Einsatz reibungslos.'},
+  ]},
+  {tag:3,title:'GAB – Teamarbeit & Abschluss',sub:'Zeugenschutz, Tablet, Personenschutz, Operationen',kategorie:'gab',sections:[
+    {title:'Zeugenschutz',regeln:['Personen schützen','Ruhig bleiben','Aufmerksam handeln'],erkl:'Du bist verantwortlich für die Sicherheit einer anderen Person.'},
+    {title:'Tablet-Nutzung',regeln:['Personen überprüfen','Informationen abrufen'],erkl:'Deine Entscheidungen basieren auf den Daten, die du hast.'},
+    {title:'Personenschutz',regeln:['Schutzperson begleiten','Gefahren erkennen','Schnell reagieren'],erkl:'Deine Aufgabe ist es, Schaden zu verhindern.'},
+    {title:'Operationen',regeln:['Im Team arbeiten','Befehle ausführen','Ziel erreichen'],erkl:'Erfolg entsteht nur durch Zusammenarbeit.'},
+  ]},
+  // ── WB1 Fugitive Task Force ───────────────
+  {tag:'WB1',title:'WB 1 – Fugitive Task Force',sub:'Fahndung, Observation, Zugriff',kategorie:'wb1',sections:[
+    {title:'Ziel der Weiterbildung',regeln:['Flüchtige Straftäter lokalisieren','Beobachten und im Team festnehmen'],erkl:'Ein Flüchtiger macht Fehler – eure Aufgabe ist es, diese zu finden. Geduld und Präzision entscheiden.'},
+    {title:'Auswertung von Fahndungsdaten',regeln:['Bekannte Aufenthaltsorte analysieren','Bewegungsmuster auswerten','Vorhandene Informationen nutzen'],erkl:'Jede Zielperson hinterlässt Spuren. Ihr jagt kein Person, ihr jagt ihr Verhalten.'},
+    {title:'Aufbau von Such- und Einsatzgebieten',regeln:['Suchzonen eingrenzen','Team aufteilen','Orte priorisieren'],erkl:'Ein großes Gebiet ohne Struktur führt zu Fehlern. Klare Aufteilung erhöht die Effizienz.'},
+    {title:'Observation & unauffälliges Vorgehen',regeln:['Unauffällig überwachen','Abstand halten','Verhalten anpassen'],erkl:'Wird die Zielperson gewarnt, ist der Einsatz gefährdet. Wenn das Ziel euch sieht, habt ihr verloren.'},
+    {title:'Koordinierte Zugriffsvorbereitung',regeln:['Zugriff planen','Rollen verteilen','Kommunikation sicherstellen'],erkl:'Ein Zugriff beginnt lange vor dem ersten Schritt. Fehlende Kommunikation zerstört jeden Plan.'},
+    {title:'Festnahme flüchtiger Personen',regeln:['Zugriff als Einheit durchführen','Absicherung','Zielperson festnehmen'],erkl:'Ihr handelt als Einheit – nicht einzeln. Klare Ansagen, sauberes Vorgehen.'},
+  ]},
+  // ── WB2 High Risk Transport ───────────────
+  {tag:'WB2',title:'WB 2 – High Risk Transport',sub:'Konvoi, Transport, Sicherheit',kategorie:'wb2',sections:[
+    {title:'Ziel der Weiterbildung',regeln:['Gefangene sicher transportieren','Konvois führen','Auf Bedrohungen reagieren'],erkl:'Ein Transport ist kein einfacher Fahrdienst – es ist ein Einsatz unter permanenter Gefahr.'},
+    {title:'Planung und Absicherung',regeln:['Routenplanung unter Sicherheitsaspekten','Gefahrenpunkte einschätzen','Ausweichrouten vorbereiten'],erkl:'Ein Transport beginnt nicht mit dem Fahrzeug, sondern mit der Planung. Wer unvorbereitet startet, lädt den Angriff ein.'},
+    {title:'Konvoiführung und Rollenverteilung',regeln:['Fahrzeugreihenfolge einhalten','Aufgaben verteilen: Vorne, Mitte, Ende','Abstand und Positionierung'],erkl:'Ein Konvoi ist eine Einheit – kein Einzelverkehr. Jeder bleibt in seiner Position, egal was passiert.'},
+    {title:'Funkkommunikation',regeln:['Kurze und klare Meldungen','Lageberichte während der Fahrt','Notfallmeldungen'],erkl:'Funk ist euer Auge außerhalb des Fahrzeugs. Kurz, klar, ohne Diskussion.'},
+    {title:'Verhalten bei Angriffen',regeln:['Ruhig bleiben','Gefangenen sichern','Teamkoordination'],erkl:'Wenn etwas passiert, gibt es keinen Raum für Panik. Ihr schützt zuerst den Gefangenen, dann euch selbst.'},
+    {title:'Hochrisiko-Gefangene',regeln:['Maximale Aufmerksamkeit','Zusätzliche Sicherheitsmaßnahmen','Permanente Überwachung'],erkl:'Ihr dürft nie vergessen, wen ihr transportiert. Ein Fehler reicht für eine Flucht.'},
+  ]},
+  // ── WB3 Judicial Security ─────────────────
+  {tag:'WB3',title:'WB 3 – Judicial Security',sub:'Gerichtsschutz, Personenschutz, Notfall',kategorie:'wb3',sections:[
+    {title:'Ziel der Weiterbildung',regeln:['Gerichtsgebäude sichern','Personen schützen','In Bedrohungslagen reagieren'],erkl:'Ein Gericht ist kein normaler Einsatzort. Ihr schützt nicht nur Personen – ihr schützt die Justiz.'},
+    {title:'Sicherung von Gerichtsgebäuden',regeln:['Gebäude vor Verfahren absichern','Innen- und Außenbereiche kontrollieren','Patrouille im Umfeld'],erkl:'Ein Gericht ohne Sicherheit ist ein offenes Ziel. Sicherheit beginnt außerhalb des Gebäudes.'},
+    {title:'Zugangskontrollen & Sicherheitszonen',regeln:['Personen am Eingang kontrollieren','Berechtigungen prüfen','Sicherheitsbereiche einteilen'],erkl:'Wer hier rein will, wird geprüft – ohne Ausnahme. Fehler an der Tür werden im Gericht teuer bezahlt.'},
+    {title:'Schutz von Richtern, Zeugen, Staatsanwälten',regeln:['Personenschutz im Gebäude','Begleitung zwischen Räumen','Permanente Absicherung'],erkl:'Diese Personen sind euer Auftrag – nicht der Täter. Ein Moment der Unaufmerksamkeit reicht aus.'},
+    {title:'Verhalten bei Bedrohungslagen',regeln:['Sofortige kontrollierte Reaktion','Deeskalation oder Zugriff','Teamkoordination'],erkl:'Im Gericht gibt es keine zweite Chance. Ihr handelt schnell, aber kontrolliert.'},
+    {title:'Evakuierungsverfahren',regeln:['Personen evakuieren','Sichere Routen nutzen','Sammelpunkte sichern'],erkl:'Chaos rettet niemanden. Struktur ist eure stärkste Waffe im Notfall.'},
+  ]},
+  // ── OVERWATCH ────────────────────────────
+  {tag:'OW',title:'Overwatch-Ausbildung',sub:'Taktische Überwachung & Support',kategorie:'overwatch',sections:[
+    {title:'Ziel der Ausbildung',regeln:['Einsätze aus erhöhter Position überwachen','Informationen weitergeben','Taktische Unterstützung leisten'],erkl:'Du bist nicht im Mittelpunkt – du bist der, der alles sieht. Deine Informationen entscheiden über Erfolg oder Scheitern.'},
+    {title:'Grundlagen von Overwatch',regeln:['Rolle des Overwatch verstehen','Unterschied zu aktiven Zugriffseinheiten','Verantwortungsbereich kennen'],erkl:'Overwatch unterstützt das Team aus der Distanz. Du greifst nicht ein – du unterstützt. Deine Stärke ist Übersicht, nicht Aktion.'},
+    {title:'Positionswahl & Sichtlinien',regeln:['Erhöhte Positionen wählen','Deckung nutzen','Sichtlinien kontrollieren'],erkl:'Position ist alles. Wenn du nichts siehst, bist du nutzlos. Deckung schützt dich – nutze sie.'},
+    {title:'Zielbeobachtung & Informationsweitergabe',regeln:['Kontinuierlich beobachten','Bewegungen melden','Lageupdates geben'],erkl:'Du meldest, was du siehst – nicht was du denkst. Jede Bewegung kann entscheidend sein. Informationen müssen klar sein.'},
+    {title:'Kommunikation mit Einsatzkräften',regeln:['Funkdisziplin einhalten','Kurze und klare Meldungen','Wichtige Informationen priorisieren'],erkl:'Du redest nur, wenn es wichtig ist. Unklare Meldungen bringen das Team in Gefahr. Funk ist deine wichtigste Waffe.'},
+    {title:'Verhalten in kritischen Lagen',regeln:['Bei Entdeckung ruhig bleiben','Eskalation kontrollieren','Eigene Position absichern'],erkl:'Wenn du entdeckt wirst, hast du einen Fehler gemacht. Bleib ruhig – Panik bringt nichts. Das Team hat Priorität.'},
+  ]},
+  // ── AIR SUPPORT ──────────────────────────
+  {tag:'AS',title:'Air Support Ausbildung',sub:'Helikopter, Flugtraining, Verfolgung',kategorie:'airsupport',sections:[
+    {title:'Voraussetzungen & Punktesystem',regeln:['Mindestdienstgrad: Deputy Marshal','Start mit 3 Punkten','Absturz = sofort nicht bestanden (14 Tage Sperre)'],erkl:'Jeder USMSler startet mit 3 Punkten. Bei größeren Fehlern wird 1 Punkt abgezogen. Bei 0 Punkten: nicht bestanden, 7 Tage Sperre.'},
+    {title:'Theorie',regeln:['Steuerung des Helikopters','Höhenkontrolle','Funkkommunikation im Flug'],erkl:'Maximal 3 Fragen dürfen falsch sein. Ab 4 falschen Antworten: nicht bestanden, 3 Tage Sperre.'},
+    {title:'Flugtraining – Starten & Landen',regeln:['Ruhig starten und abheben','Höhe stabil halten','Ohne harte Bewegungen landen'],erkl:'Kontrolliertes und ruhiges Fliegen ist die Grundlage. Unsichere Landungen bedeuten Punktabzug.'},
+    {title:'Hovern & Kurvenflug',regeln:['Heli auf fester Position halten','Enge Kurven fliegen','Geschwindigkeit kontrollieren'],erkl:'Ruhige Steuerung ohne starke Bewegungen. Nicht gegen Gebäude oder Objekte kommen.'},
+    {title:'Spezialtraining',regeln:['Schlittern: kontrolliert aufsetzen','Army Tunnel: mittig bleiben','Tiefflug: Kontrolle behalten'],erkl:'Fehler beim Schlittern oder Tunnel kosten Punkte. Präzision und Kontrolle sind entscheidend.'},
+    {title:'Verfolgungen',regeln:['Fahrzeuge verfolgen','Sichtkontakt halten','Ground Units unterstützen'],erkl:'Air Support ist für die Bodentruppen. Richtungen durchgeben, Lage übermitteln.'},
+  ]},
+  // ── FUNK ─────────────────────────────────
+  {tag:'FK',title:'Funk-Ausbildung',sub:'10er Codes, Status Codes, Funkdisziplin',kategorie:'funk',sections:[
+    {title:'Grundregeln im Funkverkehr',regeln:['Kurz, klar, ohne unnötige Worte','Keine privaten Gespräche','Erst zuhören, dann sprechen','Höherrangige haben Vorrang'],erkl:'Klare Kommunikation entscheidet im Einsatz über Erfolg oder Misserfolg. Codes korrekt und vollständig verwenden.'},
+    {title:'10er Codes (wichtigste)',regeln:['10-01 = Dienstantritt','10-04 = Verstanden','10-20 = Standort','10-80 = Verfolgungsjagd','11-99 = Beamter unter Beschuss'],erkl:'Diese Codes müssen sitzen – ohne Nachdenken. Auch: 10-13 (Schüsse), 10-15 (Beamter am Boden), 10-60 (Schussfreigabe).'},
+    {title:'Status Codes',regeln:['Status 1 = Am SG verfügbar','Status 2 = Auf Funk verfügbar','Status 3 = Auf Einsatzfahrt','Status 4 = Am Einsatzort','Status 7 = Pause'],erkl:'Beispiel: "Status 3, unterwegs zur 10-80". Auch: Status 5 (Unterstützung), Status 6 (nicht einsatzbereit).'},
+    {title:'Code Funk Codes (Lagecodes)',regeln:['Code BREAK = Notstand ausrufen','Code GREEN = Notstand beenden','Code YELLOW = Alle ins SG','Code BLACK = Alle Staatsbeamten schützen'],erkl:'Diese Codes werden nur bei wichtigen Lagen genutzt. Kein Spam.'},
+    {title:'Einsatz Codes (Code 1-10)',regeln:['Code 1 = Einsatzbereit','Code 2 = Fahrt mit Blaulicht','Code 3 = Blaulicht + Sirene','Code 4 = Einsatz beendet','Code 10 = Verstärkung benötigt'],erkl:'Praxisbeispiel: "Leitstelle, Unit 12, Code 3 auf dem Weg, 10-20 folgt"'},
+    {title:'Abschluss',regeln:['Alle Codes sicher beherrschen','Funk klar und verständlich','Keine unnötigen Fehler'],erkl:'Ein Rekrut gilt als funkfähig wenn alle Codes sicher sitzen und Befehle korrekt umgesetzt werden.'},
+  ]},
+  // ── BEANBAG ──────────────────────────────
+  {tag:'BB',title:'Beanbag-Ausbildung',sub:'Less Lethal Shotgun Certification',kategorie:'beanbag',sections:[
+    {title:'Ziel der Ausbildung',regeln:['Beanbag kontrolliert einsetzen','Verhältnismäßig handeln','Situationsgerecht entscheiden'],erkl:'Das ist kein Spielzeug – auch weniger tödliche Mittel können schwere Folgen haben. Du entscheidest, wann Gewalt notwendig ist.'},
+    {title:'Grundlagen der Beanbag-Waffe',regeln:['Funktionsweise kennen','Unterschiede zu tödlicher Munition','Sicheres Handling'],erkl:'Nur weil es weniger tödlich ist, ist es nicht ungefährlich. Du behandelst jede Waffe mit Respekt.'},
+    {title:'Einsatzgrundsätze (Less Lethal)',regeln:['Verhältnismäßigkeit beachten','Eskalationsstufen kennen','Nur bei Notwendigkeit einsetzen'],erkl:'Die Beanbag ist eine Alternative zur tödlichen Gewalt – nicht jeder braucht einen Schuss. Das Mittel das die Lage erfordert – nicht mehr.'},
+    {title:'Zielwahl & Wirkung',regeln:['Sichere Zielbereiche wählen','Gefährliche Trefferzonen vermeiden','Kopf und lebenswichtige Bereiche: tabu'],erkl:'Falsche Zielwahl kann schwere Verletzungen verursachen. Du zielst kontrolliert, nicht wahllos.'},
+    {title:'Kommunikation & Teamarbeit',regeln:['Einsatz ankündigen','Im Team abstimmen','Klare Befehle an Zielpersonen'],erkl:'Dein Team muss wissen, was du tust. Klare Ansagen verhindern Fehler.'},
+    {title:'Risiken & Fehlverhalten',regeln:['Falsche Zielwahl vermeiden','Übermäßigen Einsatz verhindern','Kontrolle behalten'],erkl:'Unkontrollierter Einsatz ist gefährlich. Du bleibst ruhig, egal wie die Lage ist.'},
+  ]},
+  // ── LANGWAFFEN ───────────────────────────
+  {tag:'LW',title:'Langwaffen-Ausbildung',sub:'Rifle & Carbine Certification',kategorie:'langwaffen',sections:[
+    {title:'Ziel der Ausbildung',regeln:['Langwaffen sicher führen','Kontrolliert schießen','Im Team arbeiten'],erkl:'Eine Langwaffe gibt mehr Reichweite, aber auch mehr Verantwortung. Unkontrollierter Umgang ist eine Gefahr für jeden im Einsatz.'},
+    {title:'Grundlagen von Langwaffen',regeln:['Unterschiede zu Kurzwaffen kennen','Einsatzbereiche verstehen','Aufbau und Funktion'],erkl:'Langwaffen bieten höhere Präzision und Durchschlagskraft. Du nutzt die Waffe für die richtige Situation – nicht umgekehrt.'},
+    {title:'Sicherheitsregeln',regeln:['Waffe immer als geladen betrachten','Finger außerhalb des Abzugs','Sichere Laufrichtung einhalten','Umfeld beachten'],erkl:'Sicherheit ist keine Option – sie ist Pflicht. Ein Fehler reicht aus.'},
+    {title:'Handhabung & Einsatzbereitschaft',regeln:['Laden und Entladen','Anschlagarten kennen','Einsatzbereitschaft herstellen'],erkl:'Die Waffe muss jederzeit kontrolliert und einsatzbereit geführt werden. Keine hektischen Bewegungen.'},
+    {title:'Zielerfassung & Schusskontrolle',regeln:['Ziel aufnehmen','Kontrollierte Schussabgabe','Rückstoß kontrollieren'],erkl:'Jeder Schuss hat ein Ziel. Du schießt kontrolliert, nicht schnell. Präzision verhindert unnötige Gefahren.'},
+    {title:'Verhalten in Gefechtssituationen',regeln:['Deckung nutzen','Im Team bewegen','Ruhe bewahren'],erkl:'Ruhe ist deine größte Stärke. Du arbeitest im Team – nicht alleine. Deckung rettet Leben.'},
+  ]},
+];
+
+function renderHandbuch(){
+  // Group by kategorie
+  var cats = [
+    {key:'gab',   label:'📋 GAB – Grundausbildung',    color:'var(--gold)'},
+    {key:'wb1',   label:'📘 WB 1 – Fugitive Task Force', color:'var(--blue2)'},
+    {key:'wb2',   label:'📗 WB 2 – High Risk Transport', color:'var(--green)'},
+    {key:'wb3',   label:'📕 WB 3 – Judicial Security',   color:'#c084fc'},
+    {key:'overwatch', label:'🔭 Overwatch-Ausbildung',   color:'var(--orange)'},
+    {key:'airsupport',label:'🚁 Air Support Ausbildung', color:'var(--blue2)'},
+    {key:'funk',  label:'📡 Funk-Ausbildung',            color:'var(--gold)'},
+    {key:'beanbag',label:'🟤 Beanbag-Ausbildung',        color:'var(--orange)'},
+    {key:'langwaffen',label:'🔫 Langwaffen-Ausbildung',  color:'var(--red)'},
+  ];
+  var html = '';
+  cats.forEach(function(cat){
+    var items = HANDBUCH.filter(function(d){return d.kategorie===cat.key});
+    if(!items.length) return;
+    html += '<div style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:'+cat.color+';text-transform:uppercase;padding:18px 0 8px;border-bottom:1px solid var(--border);margin-bottom:12px">'+cat.label+'</div>';
+    items.forEach(function(d,di){
+      var idx = HANDBUCH.indexOf(d);
+      var tagLabel = typeof d.tag === 'number' ? ('Tag '+d.tag) : d.tag;
+      html += '<div class="hb-day"><div class="hb-day-header" onclick="toggleDay('+idx+')">'+
+        '<div class="hb-day-num" style="font-size:16px;width:40px;text-align:center;color:'+cat.color+'">'+tagLabel+'</div>'+
+        '<div><div class="hb-day-title">'+h(d.title)+'</div><div class="hb-day-sub">'+h(d.sub)+'</div></div>'+
+        '<div style="margin-left:auto;font-size:18px;color:var(--gold)">▾</div>'+
+        '</div>'+
+        '<div class="hb-day-body '+(idx===0?'open':'')+'" id="hbday'+idx+'">'+
+        d.sections.map(function(s){
+          return '<div class="hb-section">'+
+            '<div class="hb-section-title">'+h(s.title)+'</div>'+
+            s.regeln.map(function(r){return '<div class="hb-rule">'+h(r)+'</div>'}).join('')+
+            '<div class="hb-erkl">💡 '+h(s.erkl)+'</div>'+
+          '</div>';
+        }).join('')+
+        '</div></div>';
+    });
+  });
+  document.getElementById('handbuchContent').innerHTML = html;
+}
+function toggleDay(i){document.getElementById('hbday'+i).classList.toggle('open')}
+
+// ═══════════════════════════════════════════
+// CODE
+// ═══════════════════════════════════════════
+async function genCode(){
+  var name=document.getElementById('rkName').value.trim();
+  var dn=document.getElementById('rkDN').value.trim();
+  var rang=document.getElementById('rkRang').value;
+  var typ=document.getElementById('rkTyp').value;
+  if(!name||!dn||!rang){toast('Alle Felder ausfüllen.','warn');return}
+  var code='USMS-'+Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').substr(0,4);
+  var exp=Date.now()+12*60*60*1000;
+  var data={name:name,dn:dn,rang:rang,typ:typ,used:false,expiry:exp,ausbilder:S.user?S.user.username:'–',ts:new Date().toLocaleString('de-DE'),tsRaw:Date.now()};
+  S.codes[code]=data;
+  await dbSet('usms_codes',code,data);
+  document.getElementById('codeVal').textContent=code;
+  document.getElementById('codeFor').textContent=rang+' · '+name+' ('+dn+')';
+  document.getElementById('codeBox').style.display='block';
+  addLog(S.user?S.user.username:'–','CODE',code+' → '+name+' '+dn);
+  toast('Code '+code+' erstellt!','gold');renderCodes();
+}
+
+function renderCodes(){
+  var el=document.getElementById('activeCodes');
+  var list=Object.entries(S.codes).filter(function(e){return !e[1].used&&Date.now()<e[1].expiry});
+  if(!list.length){el.innerHTML='<p style="color:var(--dim);font-size:11px">Keine aktiven Codes.</p>';return}
+  el.innerHTML=list.map(function(e){var c=e[0],v=e[1];return '<div style="display:flex;align-items:center;gap:9px;background:rgba(201,168,76,.04);border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-bottom:6px"><span style="font-family:\'Share Tech Mono\',monospace;font-size:13px;color:var(--gold2);letter-spacing:2px">'+c+'</span><span style="flex:1;font-size:10px;color:var(--dim)">'+h(v.rang)+' · '+h(v.name)+'</span></div>'}).join('');
+}
+
+// ═══════════════════════════════════════════
+// FRAGEN
+// ═══════════════════════════════════════════
+var GAB_FRAGEN_ACTIVE=[];
+var GAB_FRAGEN=[
+  {id:'g1',type:'radio',pts:2,tag:1,text:'Was sind die Hauptaufgaben des USMS?',opts:[{l:'Straßenverkehr überwachen',c:false},{l:'Haftbefehle vollstrecken, Flüchtige festnehmen, Gerichte schützen',c:true},{l:'Steuern einziehen',c:false},{l:'Nur Patrouille fahren',c:false}]},
+  {id:'g2',type:'radio',pts:2,tag:1,text:'Was gilt beim Umgang mit der Dienstwaffe?',opts:[{l:'Bei jedem Einsatz sofort ziehen',c:false},{l:'Immer in der Hand halten',c:false},{l:'Nur bei Bedarf ziehen, sicher führen, Umgebung beachten',c:true},{l:'Sofort schießen wenn nötig',c:false}]},
+  {id:'g3',type:'checkbox',pts:3,tag:1,text:'Welche Regeln gelten für Verhalten & Disziplin? (alle zutreffenden)',opts:[{l:'Befehle sofort ausführen',c:true},{l:'Eigene Meinung vor Befehl stellen',c:false},{l:'Respekt zeigen',c:true},{l:'Ruhig bleiben',c:true},{l:'Laut und aggressiv auftreten',c:false}]},
+  {id:'g4',type:'text',pts:2,tag:1,text:'Erkläre die Funk-Struktur: Woraus besteht ein korrekter Funkspruch?',kw:['wer','wo','was','standort','name','situation']},
+  {id:'g5',type:'radio',pts:2,tag:1,text:'Warum ist Disziplin im Team so wichtig?',opts:[{l:'Damit man schneller befördert wird',c:false},{l:'Weil alle gleich handeln – Sicherheit und Erfolg steigen',c:true},{l:'Es ist nicht wichtig',c:false},{l:'Um Befehle zu vermeiden',c:false}]},
+  {id:'g6',type:'radio',pts:1,tag:1,text:'Was spiegelt das Verhalten eines Rekruten wider?',opts:[{l:'Nur sich selbst',c:false},{l:'Die gesamte Einheit',c:true},{l:'Nur seinen Ausbilder',c:false},{l:'Nichts Besonderes',c:false}]},
+  {id:'g7',type:'text',pts:2,tag:1,text:'Was sind die Erwartungen an einen Rekruten? Nenne mindestens 2.',kw:['aufmerksamkeit','disziplin','lernbereitschaft','aufmerksam','lernen']},
+  {id:'g8',type:'radio',pts:2,tag:2,text:'Wann darf eine Festnahme durchgeführt werden?',opts:[{l:'Wenn der Rekrut es möchte',c:false},{l:'Nur wenn rechtlich erlaubt – Haftbefehl oder frische Tat',c:true},{l:'Immer auf Verdacht',c:false},{l:'Nur mit Backup',c:false}]},
+  {id:'g9',type:'checkbox',pts:3,tag:2,text:'Was gehört zu einer korrekten Festnahme? (alle zutreffenden)',opts:[{l:'Klare Anweisungen geben',c:true},{l:'Person sichern',c:true},{l:'Lage melden',c:true},{l:'Täter anschreien',c:false},{l:'Waffe sofort ziehen',c:false}]},
+  {id:'g10',type:'radio',pts:2,tag:2,text:'Was bestimmt bei einer Grenzkontrolle ob die Situation ruhig bleibt?',opts:[{l:'Die Uhrzeit',c:false},{l:'Das Fahrzeug',c:false},{l:'Das Auftreten des Officers',c:true},{l:'Die Anzahl der Beamten',c:false}]},
+  {id:'g11',type:'text',pts:2,tag:2,text:'Erkläre warum Kolonnenführung im Team wichtig ist.',kw:['team','funk','abstand','zusammen','einsatz','reibungslos']},
+  {id:'g12',type:'radio',pts:2,tag:2,scenario:'📋 Situation: Du hast einen Verdächtigen gestoppt. Er hat keinen Ausweis und verhält sich nervös.',text:'Was prüfst du als erstes?',opts:[{l:'Sofort festnehmen',c:false},{l:'Ob ein Haftbefehl vorliegt',c:true},{l:'Ob er ein teures Auto fährt',c:false},{l:'Ob er dir bekannt vorkommt',c:false}]},
+  {id:'g13',type:'radio',pts:1,tag:2,text:'Warum ist körperliche Fitness wichtig für einen Marshal?',opts:[{l:'Für das Aussehen',c:false},{l:'Einsätze sind körperlich fordernd – Vorbereitung ist entscheidend',c:true},{l:'Ist nicht wichtig',c:false},{l:'Für Sportwettbewerbe',c:false}]},
+  {id:'g14',type:'checkbox',pts:2,tag:2,text:'Was gehört zur Kolonnenführung? (alle zutreffenden)',opts:[{l:'Im Team fahren',c:true},{l:'Abstand halten',c:true},{l:'Funk nutzen',c:true},{l:'So schnell wie möglich fahren',c:false},{l:'Den anderen überholen',c:false}]},
+  {id:'g15',type:'radio',pts:2,tag:3,text:'Was ist beim Zeugenschutz deine Hauptaufgabe?',opts:[{l:'Die Umgebung erkunden',c:false},{l:'Für die Sicherheit der Schutzperson verantwortlich sein',c:true},{l:'Berichte schreiben',c:false},{l:'Patrouille fahren',c:false}]},
+  {id:'g16',type:'checkbox',pts:3,tag:3,text:'Was tust du beim Personenschutz? (alle zutreffenden)',opts:[{l:'Schutzperson begleiten',c:true},{l:'Gefahren erkennen',c:true},{l:'Schnell reagieren',c:true},{l:'Schutzperson alleine lassen',c:false},{l:'Gefahren ignorieren',c:false}]},
+  {id:'g17',type:'radio',pts:2,tag:3,text:'Wofür nutzt du das Tablet im Einsatz?',opts:[{l:'Social Media',c:false},{l:'Personen überprüfen und Informationen abrufen',c:true},{l:'Musik hören',c:false},{l:'Fotos machen',c:false}]},
+  {id:'g18',type:'text',pts:2,tag:3,scenario:'📋 Einsatz: Ihr seid bei einem Personenschutzauftrag. Eine unbekannte Person nähert sich der Schutzperson.',text:'Beschreibe wie du vorgehst.',kw:['gefahr','schutze','person','melden','funk','sichern','team','reagieren']},
+  {id:'g19',type:'radio',pts:2,tag:3,text:'Was ist die Grundlage für den Erfolg einer Operation?',opts:[{l:'Einzelkämpfer',c:false},{l:'Glück',c:false},{l:'Zusammenarbeit im Team',c:true},{l:'Die beste Ausrüstung',c:false}]},
+  {id:'g20',type:'checkbox',pts:2,tag:3,text:'Was sind die Erwartungen an Tag 3? (alle zutreffenden)',opts:[{l:'Konzentration',c:true},{l:'Teamarbeit',c:true},{l:'Fehlerfreies Handeln',c:true},{l:'Alleine arbeiten',c:false}]},
+  {id:'g21',type:'text',pts:3,tag:1,scenario:'📋 Dein Teamkollege gibt im laufenden Einsatz einen Befehl, den du für falsch hältst.',text:'Was tust du und warum?',kw:['befehl','ausführen','disziplin','danach','melden','sicherheit','team']},
+  {id:'g22',type:'radio',pts:2,tag:2,scenario:'📋 Der Fahrer an der Grenzkontrolle wird aggressiv und versucht wegzufahren.',text:'Was ist deine korrekte Reaktion?',opts:[{l:'Sofort schießen',c:false},{l:'Ruhig bleiben, klare Anweisungen, Lage melden',c:true},{l:'Fahrzeug rammen',c:false},{l:'Wegschicken',c:false}]},
+  {id:'g23',type:'text',pts:3,tag:3,scenario:'📋 Bei einer Operation weigert sich ein Teammitglied einen Befehl auszuführen.',text:'Wie reagierst du als Rekrut?',kw:['befehl','melden','ausbilder','disziplin','team','respekt']},
+  {id:'g24',type:'radio',pts:2,tag:1,text:'Was darf ein Rekrut NICHT tun wenn er einen Befehl für falsch hält?',opts:[{l:'Den Befehl trotzdem ausführen und danach melden',c:false},{l:'Den Befehl einfach ignorieren ohne Rückmeldung',c:true},{l:'Nachfragen wenn Zeit ist',c:false},{l:'Befehl ausführen und danach diskutieren',c:false}]},
+  {id:'g25',type:'checkbox',pts:3,tag:2,text:'Was muss bei einer Festnahme immer beachtet werden? (alle zutreffenden)',opts:[{l:'Verhältnismäßigkeit',c:true},{l:'Rechtliche Grundlage prüfen',c:true},{l:'Kommunikation im Team',c:true},{l:'Lage melden',c:true},{l:'Sofort maximale Gewalt',c:false}]},
+];
+
+// ── DEFAULT FRAGEN PRO TESTTYP ───────────────────
+var DEFAULT_QUESTIONS = {
+  gab: null, // uses GAB_FRAGEN
+  wb1: [
+    {id:'wb1_1',idx:0,type:'radio',pts:2,tag:1,text:'Was ist das Hauptziel der Fugitive Task Force?',opts:[{l:'Verkehrskontrollen durchführen',c:false},{l:'Flüchtige Straftäter lokalisieren, beobachten und festnehmen',c:true},{l:'Gerichtsgebäude sichern',c:false},{l:'Konvois begleiten',c:false}]},
+    {id:'wb1_2',idx:1,type:'radio',pts:2,tag:1,text:'Was bedeutet: "Ihr jagt keine Person, ihr jagt ihr Verhalten"?',opts:[{l:'Man soll die Person ignorieren',c:false},{l:'Man analysiert Muster und Gewohnheiten der Zielperson',c:true},{l:'Man jagt das Fahrzeug',c:false},{l:'Man folgt nur Befehlen',c:false}]},
+    {id:'wb1_3',idx:2,type:'radio',pts:2,tag:1,text:'Warum ist Struktur beim Aufbau von Suchgebieten wichtig?',opts:[{l:'Es sieht professioneller aus',c:false},{l:'Klare Aufteilung erhöht Effizienz und verhindert Chaos',c:true},{l:'Man braucht mehr Personal',c:false},{l:'Es ist nicht wichtig',c:false}]},
+    {id:'wb1_4',idx:3,type:'radio',pts:2,tag:1,text:'Was passiert wenn die Zielperson bei der Observation entdeckt, dass sie beobachtet wird?',opts:[{l:'Nichts, man macht weiter',c:false},{l:'Der Einsatz ist gefährdet',c:true},{l:'Man greift sofort ein',c:false},{l:'Man ruft Verstärkung',c:false}]},
+    {id:'wb1_5',idx:4,type:'checkbox',pts:3,tag:1,text:'Was gehört zu einer koordinierten Zugriffsvorbereitung? (alle zutreffenden)',opts:[{l:'Zugriff planen',c:true},{l:'Rollen verteilen',c:true},{l:'Kommunikation sicherstellen',c:true},{l:'Sofort drauflosfahren',c:false},{l:'Positionen einnehmen',c:true}]},
+    {id:'wb1_6',idx:5,type:'text',pts:2,tag:1,text:'Erkläre warum "blindes Suchen Zeitverschwendung" ist.',kw:['daten','muster','verhalten','struktur','information','auswert']},
+    {id:'wb1_7',idx:6,type:'radio',pts:2,tag:1,text:'Wie handelt das Team bei der Festnahme eines Flüchtigen?',opts:[{l:'Jeder für sich',c:false},{l:'Als Einheit mit klaren Ansagen',c:true},{l:'Nur der Ranghöchste handelt',c:false},{l:'Ohne vorherige Absprache',c:false}]},
+    {id:'wb1_8',idx:7,type:'radio',pts:1,tag:1,text:'Was ist wichtiger als Geschwindigkeit bei der Observation?',opts:[{l:'Stärke',c:false},{l:'Geduld',c:true},{l:'Ausrüstung',c:false},{l:'Fahrzeug',c:false}]},
+  ],
+  wb2: [
+    {id:'wb2_1',idx:0,type:'radio',pts:2,tag:1,text:'Was ist ein Hochrisiko-Transport?',opts:[{l:'Ein normaler Fahrdienst',c:false},{l:'Ein Einsatz unter permanenter Gefahr mit gefährlichen Gefangenen',c:true},{l:'Eine Übungsfahrt',c:false},{l:'Transport von Ausrüstung',c:false}]},
+    {id:'wb2_2',idx:1,type:'radio',pts:2,tag:1,text:'Wann beginnt die Sicherheit bei einem Transport?',opts:[{l:'Wenn das Fahrzeug startet',c:false},{l:'Am Zielort',c:false},{l:'Bereits bei der Planung – vor der Bewegung',c:true},{l:'Wenn der Gefangene einsteigt',c:false}]},
+    {id:'wb2_3',idx:2,type:'checkbox',pts:3,tag:1,text:'Was gehört zur Planung eines Transports? (alle zutreffenden)',opts:[{l:'Routenplanung',c:true},{l:'Gefahrenpunkte einschätzen',c:true},{l:'Ausweichrouten vorbereiten',c:true},{l:'Musik auswählen',c:false},{l:'Sicherung vor Abfahrt',c:true}]},
+    {id:'wb2_4',idx:3,type:'radio',pts:2,tag:1,text:'Wie ist die Rollenverteilung im Konvoi?',opts:[{l:'Alle fahren nebeneinander',c:false},{l:'Vorne, Mitte und Ende haben klare Aufgaben',c:true},{l:'Nur der Erste hat Aufgaben',c:false},{l:'Es gibt keine feste Reihenfolge',c:false}]},
+    {id:'wb2_5',idx:4,type:'radio',pts:2,tag:1,text:'Was macht Funk während eines Transports?',opts:[{l:'Unterhaltung',c:false},{l:'Verbindet die Einheiten und überträgt Lageinfos',c:true},{l:'Ist nicht notwendig',c:false},{l:'Nur für Notfälle',c:false}]},
+    {id:'wb2_6',idx:5,type:'radio',pts:2,tag:1,text:'Wer wird bei einem Angriff auf den Konvoi zuerst geschützt?',opts:[{l:'Das teuerste Fahrzeug',c:false},{l:'Der ranghöchste Marshal',c:false},{l:'Der Gefangene, dann die eigene Person',c:true},{l:'Niemand – zuerst angreifen',c:false}]},
+    {id:'wb2_7',idx:6,type:'text',pts:2,tag:1,text:'Warum ist Disziplin im Konvoi entscheidend?',kw:['einheit','position','rolle','chaos','sicherheit','kontrolle','ordnung']},
+    {id:'wb2_8',idx:7,type:'radio',pts:1,tag:1,text:'Was bedeutet: "Ein guter Transport sieht unspektakulär aus"?',opts:[{l:'Er war langweilig',c:false},{l:'Alles lief nach Plan – keine Zwischenfälle',c:true},{l:'Es gab keine Ladung',c:false},{l:'Niemand hat aufgepasst',c:false}]},
+  ],
+  wb3: [
+    {id:'wb3_1',idx:0,type:'radio',pts:2,tag:1,text:'Was schützt der USMS beim Judicial Security Einsatz?',opts:[{l:'Nur das Gebäude',c:false},{l:'Nur den Richter',c:false},{l:'Personen und die Justiz als Institution',c:true},{l:'Nur Zeugen',c:false}]},
+    {id:'wb3_2',idx:1,type:'radio',pts:2,tag:1,text:'Wo beginnt die Sicherheit eines Gerichtsgebäudes?',opts:[{l:'Im Gerichtssaal',c:false},{l:'An der Eingangstür',c:false},{l:'Außerhalb des Gebäudes',c:true},{l:'Im Keller',c:false}]},
+    {id:'wb3_3',idx:2,type:'checkbox',pts:3,tag:1,text:'Wer wird beim Judicial Security besonders geschützt? (alle zutreffenden)',opts:[{l:'Richter',c:true},{l:'Zeugen',c:true},{l:'Staatsanwälte',c:true},{l:'Zufällige Besucher',c:false},{l:'Alle Personen im Gebäude',c:false}]},
+    {id:'wb3_4',idx:3,type:'radio',pts:2,tag:1,text:'Was passiert wenn Fehler bei der Zugangskontrolle gemacht werden?',opts:[{l:'Nichts Ernstes',c:false},{l:'Werden im Gericht teuer bezahlt – Sicherheitsrisiko',c:true},{l:'Kann korrigiert werden',c:false},{l:'Ist Aufgabe anderer',c:false}]},
+    {id:'wb3_5',idx:4,type:'radio',pts:2,tag:1,text:'Wie reagiert man bei einer Bedrohungslage im Gericht?',opts:[{l:'Panik und Rückzug',c:false},{l:'Schnell und kontrolliert ohne Panik',c:true},{l:'Abwarten',c:false},{l:'Alleine handeln',c:false}]},
+    {id:'wb3_6',idx:5,type:'text',pts:2,tag:1,text:'Erkläre warum Struktur bei einer Evakuierung wichtig ist.',kw:['chaos','ordnung','sicher','route','sammelpunkt','schnell','kontrolle']},
+    {id:'wb3_7',idx:6,type:'radio',pts:2,tag:1,text:'Warum darf beim Personenschutz kein Moment der Unaufmerksamkeit entstehen?',opts:[{l:'Es sieht unprofessionell aus',c:false},{l:'Ein Moment reicht für einen Angriff auf die Schutzperson',c:true},{l:'Wegen Vorschriften',c:false},{l:'Der Richter beobachtet einen',c:false}]},
+    {id:'wb3_8',idx:7,type:'radio',pts:1,tag:1,text:'Was bedeutet ein erfolgreiches Judicial Security Einsatz?',opts:[{l:'Viele Festnahmen',c:false},{l:'Nichts ist passiert – das war das Ziel',c:true},{l:'Schnelles Eingreifen',c:false},{l:'Viele Beamte im Einsatz',c:false}]},
+  ],
+  overwatch: [
+    {id:'ow1',idx:0,type:'radio',pts:2,tag:1,text:'Was ist die Hauptaufgabe des Overwatch?',opts:[{l:'Aktiv in Einsätze eingreifen',c:false},{l:'Aus erhöhter Position beobachten und Informationen weitergeben',c:true},{l:'Festnahmen durchführen',c:false},{l:'Funkmeldungen empfangen',c:false}]},
+    {id:'ow2',idx:1,type:'radio',pts:2,tag:1,text:'Was ist die Stärke des Overwatch?',opts:[{l:'Schnelle Reaktion',c:false},{l:'Übersicht und Beobachtung',c:true},{l:'Direkte Konfrontation',c:false},{l:'Fahrzeugverfolgung',c:false}]},
+    {id:'ow3',idx:2,type:'radio',pts:2,tag:1,text:'Was meldet der Overwatch?',opts:[{l:'Was er vermutet',c:false},{l:'Was er sieht – Fakten, keine Meinungen',c:true},{l:'Alles was er hört',c:false},{l:'Nur wenn etwas Kritisches passiert',c:false}]},
+    {id:'ow4',idx:3,type:'checkbox',pts:3,tag:1,text:'Was ist bei der Positionswahl wichtig? (alle zutreffenden)',opts:[{l:'Erhöhte Position',c:true},{l:'Deckung nutzen',c:true},{l:'Sichtlinien kontrollieren',c:true},{l:'Möglichst sichtbar sein',c:false},{l:'Gute Übersicht haben',c:true}]},
+    {id:'ow5',idx:4,type:'radio',pts:2,tag:1,text:'Was passiert wenn Overwatch entdeckt wird?',opts:[{l:'Nichts Besonderes',c:false},{l:'Der gesamte Einsatz kann gefährdet sein',c:true},{l:'Man kämpft sich durch',c:false},{l:'Man ruft Backup',c:false}]},
+    {id:'ow6',idx:5,type:'radio',pts:2,tag:1,text:'Wann spricht Overwatch über Funk?',opts:[{l:'Ständig um das Team zu informieren',c:false},{l:'Nur wenn es wirklich wichtig ist',c:true},{l:'Nie',c:false},{l:'Nur auf Befehl',c:false}]},
+    {id:'ow7',idx:6,type:'text',pts:2,tag:1,text:'Erkläre die Aussage: "Du bist nicht im Mittelpunkt – du bist der, der alles sieht."',kw:['übersicht','beobacht','inform','distanz','unterstütz','hintergrund','team']},
+    {id:'ow8',idx:7,type:'radio',pts:1,tag:1,text:'Was ist ein Zeichen für einen guten Overwatch?',opts:[{l:'Er fällt auf und greift oft ein',c:false},{l:'Er fällt nicht auf, aber alle verlassen sich auf ihn',c:true},{l:'Er schießt präzise',c:false},{l:'Er fährt schnell',c:false}]},
+  ],
+  airsupport: [
+    {id:'as1',idx:0,type:'radio',pts:2,tag:1,text:'Mit wie vielen Punkten startet ein USMSler die Air Support Ausbildung?',opts:[{l:'1 Punkt',c:false},{l:'2 Punkte',c:false},{l:'3 Punkte',c:true},{l:'5 Punkte',c:false}]},
+    {id:'as2',idx:1,type:'radio',pts:2,tag:1,text:'Was passiert bei einem Absturz?',opts:[{l:'1 Punkt Abzug',c:false},{l:'Ausbildung sofort nicht bestanden + 14 Tage Sperre',c:true},{l:'Wiederholung der Übung',c:false},{l:'Nur 7 Tage Sperre',c:false}]},
+    {id:'as3',idx:2,type:'radio',pts:2,tag:1,text:'Wie viele Fragen dürfen maximal falsch beantwortet werden?',opts:[{l:'1',c:false},{l:'2',c:false},{l:'3',c:true},{l:'5',c:false}]},
+    {id:'as4',idx:3,type:'radio',pts:2,tag:1,text:'Was bedeutet Status 2?',opts:[{l:'Am SG verfügbar',c:false},{l:'Verfügbar auf Funk',c:true},{l:'Auf Einsatzfahrt',c:false},{l:'Pause',c:false}]},
+    {id:'as5',idx:4,type:'radio',pts:2,tag:1,text:'Was bedeutet 11-99?',opts:[{l:'Verfolgungsjagd',c:false},{l:'Standort melden',c:false},{l:'Beamter unter Beschuss',c:true},{l:'Dienstantritt',c:false}]},
+    {id:'as6',idx:5,type:'radio',pts:2,tag:1,text:'Wie fliegt man durch den Army Tunnel?',opts:[{l:'Schnell und tief',c:false},{l:'Kontrolliert und mittig',c:true},{l:'Rückwärts',c:false},{l:'So schnell wie möglich',c:false}]},
+    {id:'as7',idx:6,type:'radio',pts:2,tag:1,text:'Wie sollte ein Helikopter landen?',opts:[{l:'Schnell und steil',c:false},{l:'Kontrolliert und ruhig',c:true},{l:'Mit hoher Geschwindigkeit',c:false},{l:'Seitlich',c:false}]},
+    {id:'as8',idx:7,type:'radio',pts:1,tag:1,text:'Was ist beim Schlittern wichtig?',opts:[{l:'Geschwindigkeit',c:false},{l:'Kontrolle behalten',c:true},{l:'Höhe',c:false},{l:'Funk',c:false}]},
+    {id:'as9',idx:8,type:'radio',pts:1,tag:1,text:'Was bedeutet 10-80?',opts:[{l:'Dienstantritt',c:false},{l:'Verstanden',c:false},{l:'Verfolgungsjagd',c:true},{l:'Pause',c:false}]},
+    {id:'as10',idx:9,type:'radio',pts:2,tag:1,text:'Welchen Mindestdienstgrad braucht man für Air Support?',opts:[{l:'Rekrut Marshal',c:false},{l:'Deputy Marshal',c:true},{l:'Sergeant',c:false},{l:'Captain',c:false}]},
+  ],
+  funk: [
+    {id:'fk1',idx:0,type:'radio',pts:2,tag:1,text:'Was bedeutet 10-01?',opts:[{l:'Dienstende',c:false},{l:'Dienstantritt',c:true},{l:'Standort',c:false},{l:'Verstanden',c:false}]},
+    {id:'fk2',idx:1,type:'radio',pts:2,tag:1,text:'Was bedeutet 11-99?',opts:[{l:'Verfolgungsjagd',c:false},{l:'Beamter am Boden',c:false},{l:'Beamter unter Beschuss',c:true},{l:'Standort',c:false}]},
+    {id:'fk3',idx:2,type:'radio',pts:2,tag:1,text:'Was bedeutet 10-80?',opts:[{l:'Dienstantritt',c:false},{l:'Verstanden',c:false},{l:'Verfolgungsjagd',c:true},{l:'Pause',c:false}]},
+    {id:'fk4',idx:3,type:'radio',pts:2,tag:1,text:'Was bedeutet Status 7?',opts:[{l:'Auf Einsatzfahrt',c:false},{l:'Am Einsatzort',c:false},{l:'Pause',c:true},{l:'Unterstützung angefordert',c:false}]},
+    {id:'fk5',idx:4,type:'radio',pts:2,tag:1,text:'Was bedeutet Code BREAK?',opts:[{l:'Notstand beenden',c:false},{l:'Alle ins SG',c:false},{l:'Notstand ausrufen',c:true},{l:'Alle Beamten schützen',c:false}]},
+    {id:'fk6',idx:5,type:'radio',pts:2,tag:1,text:'Was bedeutet 10-20?',opts:[{l:'Verstanden',c:false},{l:'Standort durchgeben',c:true},{l:'Dienstende',c:false},{l:'Abholung benötigt',c:false}]},
+    {id:'fk7',idx:6,type:'radio',pts:2,tag:1,text:'Wer hat Vorrang im Funk?',opts:[{l:'Wer zuerst spricht',c:false},{l:'Höherrangige',c:true},{l:'Alle gleichzeitig',c:false},{l:'Der Rekrut',c:false}]},
+    {id:'fk8',idx:7,type:'checkbox',pts:3,tag:1,text:'Was sind die Grundregeln im Funk? (alle zutreffenden)',opts:[{l:'Kurz und klar sprechen',c:true},{l:'Erst zuhören dann sprechen',c:true},{l:'Keine privaten Gespräche',c:true},{l:'Höherrangige haben Vorrang',c:true},{l:'So viel wie möglich reden',c:false}]},
+    {id:'fk9',idx:8,type:'radio',pts:1,tag:1,text:'Was bedeutet 10-04?',opts:[{l:'Standort',c:false},{l:'Verstanden',c:true},{l:'Verfolgungsjagd',c:false},{l:'Dienstantritt',c:false}]},
+    {id:'fk10',idx:9,type:'radio',pts:2,tag:1,text:'Was bedeutet Status 5?',opts:[{l:'Pause',c:false},{l:'Nicht einsatzbereit',c:false},{l:'Unterstützung angefordert',c:true},{l:'Am Einsatzort',c:false}]},
+  ],
+  beanbag: [
+    {id:'bb1',idx:0,type:'radio',pts:2,tag:1,text:'Wofür wird die Beanbag-Schrotflinte eingesetzt?',opts:[{l:'Um Ziele zu töten',c:false},{l:'Kontrolle von Personen ohne tödliche Gewalt',c:true},{l:'Für Warnschüsse in die Luft',c:false},{l:'Für Fahrzeugstopps',c:false}]},
+    {id:'bb2',idx:1,type:'radio',pts:2,tag:1,text:'Welche Körperbereiche sind beim Beanbag-Einsatz tabu?',opts:[{l:'Beine',c:false},{l:'Arme',c:false},{l:'Kopf und lebenswichtige Bereiche',c:true},{l:'Hände',c:false}]},
+    {id:'bb3',idx:2,type:'radio',pts:2,tag:1,text:'Wann darf die Beanbag eingesetzt werden?',opts:[{l:'Bei jeder Festnahme',c:false},{l:'Wenn Kontrolle nötig ist ohne tödliche Gewalt',c:true},{l:'Immer wenn man es will',c:false},{l:'Nur auf Befehl des Commanders',c:false}]},
+    {id:'bb4',idx:3,type:'radio',pts:2,tag:1,text:'Was muss beim Beanbag-Einsatz immer beachtet werden?',opts:[{l:'Geschwindigkeit',c:false},{l:'Verhältnismäßigkeit',c:true},{l:'Entfernung',c:false},{l:'Wetterlage',c:false}]},
+    {id:'bb5',idx:4,type:'checkbox',pts:3,tag:1,text:'Was gehört zur korrekten Kommunikation beim Beanbag-Einsatz? (alle zutreffenden)',opts:[{l:'Einsatz ankündigen',c:true},{l:'Team abstimmen',c:true},{l:'Klare Befehle an Zielperson',c:true},{l:'Schweigen',c:false},{l:'Funk nutzen',c:true}]},
+    {id:'bb6',idx:5,type:'radio',pts:2,tag:1,text:'Was ist das Ziel beim Beanbag-Einsatz?',opts:[{l:'Ausschalten',c:false},{l:'Kontrolle – Situation beenden ohne zu eskalieren',c:true},{l:'Abschrecken',c:false},{l:'Verletzen',c:false}]},
+    {id:'bb7',idx:6,type:'text',pts:2,tag:1,text:'Erkläre warum die Beanbag kein "Spielzeug" ist.',kw:['verletz','gefähr','vorsicht','respekt','tödlich','konsequenz','kontrolle']},
+    {id:'bb8',idx:7,type:'radio',pts:1,tag:1,text:'Was ist beim Beanbag-Einsatz wichtiger als Kraft?',opts:[{l:'Geschwindigkeit',c:false},{l:'Kontrolle',c:true},{l:'Stärke',c:false},{l:'Distanz',c:false}]},
+  ],
+  langwaffen: [
+    {id:'lw1',idx:0,type:'radio',pts:2,tag:1,text:'Was ist der Hauptunterschied von Langwaffen zu Kurzwaffen?',opts:[{l:'Langwaffen sind leichter',c:false},{l:'Höhere Präzision und Reichweite, weniger Flexibilität',c:true},{l:'Langwaffen sind einfacher zu bedienen',c:false},{l:'Kein Unterschied',c:false}]},
+    {id:'lw2',idx:1,type:'checkbox',pts:3,tag:1,text:'Was sind die Sicherheitsregeln beim Umgang mit Langwaffen? (alle zutreffenden)',opts:[{l:'Waffe immer als geladen betrachten',c:true},{l:'Finger außerhalb des Abzugs',c:true},{l:'Sichere Laufrichtung',c:true},{l:'Umfeld beachten',c:true},{l:'Schnell laden',c:false}]},
+    {id:'lw3',idx:2,type:'radio',pts:2,tag:1,text:'Wann wird eine Langwaffe im Dienst eingesetzt?',opts:[{l:'Bei jeder Festnahme',c:false},{l:'Nur bei Hochrisikolagen wenn erhöhte Gefahr besteht',c:true},{l:'Immer als erste Wahl',c:false},{l:'Nie',c:false}]},
+    {id:'lw4',idx:3,type:'radio',pts:2,tag:1,text:'Was ist in Gefechtssituationen die größte Stärke?',opts:[{l:'Geschwindigkeit',c:false},{l:'Ruhe',c:true},{l:'Körperkraft',c:false},{l:'Ausrüstung',c:false}]},
+    {id:'lw5',idx:4,type:'radio',pts:2,tag:1,text:'Wie schießt man mit einer Langwaffe korrekt?',opts:[{l:'So schnell wie möglich',c:false},{l:'Kontrolliert – jeder Schuss hat ein Ziel',c:true},{l:'Ohne zu zielen',c:false},{l:'In kurzen Bursts',c:false}]},
+    {id:'lw6',idx:5,type:'radio',pts:2,tag:1,text:'Was rettet in Gefechtssituationen Leben?',opts:[{l:'Alleine handeln',c:false},{l:'Deckung und Teamarbeit',c:true},{l:'Aggressives Vorgehen',c:false},{l:'Rückzug',c:false}]},
+    {id:'lw7',idx:6,type:'text',pts:2,tag:1,text:'Erkläre: "Sicherheit ist keine Option – sie ist Pflicht."',kw:['pflicht','fehler','konsequenz','sicher','umgang','verantwort','waffe']},
+    {id:'lw8',idx:7,type:'radio',pts:1,tag:1,text:'Was steht beim Langwaffen-Einsatz immer an erster Stelle?',opts:[{l:'Trefferquote',c:false},{l:'Sicherheit',c:true},{l:'Geschwindigkeit',c:false},{l:'Kaliber',c:false}]},
+  ],
+};
+
+function getDefaultQuestionsForType(typ){
+  if(typ === 'gab' || !typ) return GAB_FRAGEN;
+  return DEFAULT_QUESTIONS[typ] || [];
+}
+
+function maxPts(){return (GAB_FRAGEN_ACTIVE.length?GAB_FRAGEN_ACTIVE:GAB_FRAGEN).reduce(function(s,q){return s+q.pts},0)}
+var fmtT=function(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+
+function initTest(){
+  testAntworten={};testTimeLeft=DUR;
+  document.getElementById('tName').textContent=(S.rookie.name||'')+' · '+(S.rookie.dn||'');
+  document.getElementById('tDisp').textContent=fmtT(testTimeLeft);
+  document.getElementById('tDisp').className='tdisp';
+  document.getElementById('sqCnt').textContent=(GAB_FRAGEN_ACTIVE.length?GAB_FRAGEN_ACTIVE:GAB_FRAGEN).length;
+  document.getElementById('startP').style.display='flex';
+  document.getElementById('questP').style.display='none';
+  showS('testScr');
+}
+
+function startTest(){
+  document.getElementById('startP').style.display='none';
+  document.getElementById('questP').style.display='block';
+  renderFragen();startTimer();setupLeave();
+}
+
+function renderFragen(){
+  var html='';var curTag=0;
+  (GAB_FRAGEN_ACTIVE.length?GAB_FRAGEN_ACTIVE:GAB_FRAGEN).forEach(function(q,i){
+    if(q.tag!==curTag){curTag=q.tag;html+='<div style="font-family:\'Rajdhani\',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:var(--gold);text-transform:uppercase;padding:14px 0 6px;border-bottom:1px solid var(--border);margin-bottom:12px">Tag '+curTag+' — '+['Grundlagen','Einsatz & Praxis','Teamarbeit'][curTag-1]+'</div>';}
+    html+='<div class="qblock"><div class="qnum">Frage '+(i+1)+'/'+GAB_FRAGEN.length+' · '+q.pts+' '+(q.pts===1?'Punkt':'Punkte')+'</div>';
+    if(q.scenario)html+='<div class="qscen">'+h(q.scenario).replace(/\n/g,'<br>')+'</div>';
+    html+='<div class="qtxt">'+h(q.text)+'</div>';
+    if(q.type==='radio'){html+='<div class="qopts">'+(q.opts||[]).map(function(o,oi){return '<div class="qopt" id="o_'+q.id+'_'+oi+'" onclick="pickAnt(\''+q.id+'\','+oi+',\'r\')"><div class="qcirc"></div><span>'+h(o.l)+'</span></div>'}).join('')+'</div>';}
+    else if(q.type==='checkbox'){html+='<div class="qopts">'+(q.opts||[]).map(function(o,oi){return '<div class="qopt" id="o_'+q.id+'_'+oi+'" onclick="pickAnt(\''+q.id+'\','+oi+',\'c\')"><div class="qsq"></div><span>'+h(o.l)+'</span></div>'}).join('')+'</div>';}
+    else{html+='<textarea class="qta" rows="4" placeholder="Deine Antwort…" oninput="testAntworten[\''+q.id+'\']=this.value;updProgress()"></textarea>';}
+    html+='</div>';
+  });
+  document.getElementById('qCont').innerHTML=html;
+}
+
+function pickAnt(qid,idx,type){
+  if(type==='r'){
+    GAB_FRAGEN.forEach(function(q){if(q.id===qid&&q.opts)q.opts.forEach(function(_,i){var el=document.getElementById('o_'+qid+'_'+i);if(el)el.classList.remove('sel')})});
+    var el=document.getElementById('o_'+qid+'_'+idx);if(el)el.classList.add('sel');
+    testAntworten[qid]=idx;
+  }else{
+    if(!testAntworten[qid])testAntworten[qid]=[];
+    var arr=testAntworten[qid],pos=arr.indexOf(idx),el2=document.getElementById('o_'+qid+'_'+idx);
+    if(pos===-1){arr.push(idx);if(el2)el2.classList.add('sel')}else{arr.splice(pos,1);if(el2)el2.classList.remove('sel')}
+  }
+  updProgress();
+}
+
+function updProgress(){
+  var done=(GAB_FRAGEN_ACTIVE.length?GAB_FRAGEN_ACTIVE:GAB_FRAGEN).filter(function(q){var a=testAntworten[q.id];if(a===undefined||a===null)return false;if(typeof a==='string')return a.trim().length>0;if(Array.isArray(a))return a.length>0;return true}).length;
+  document.getElementById('pfill').style.width=(done/GAB_FRAGEN.length*100)+'%';
+}
+
+function startTimer(){
+  testTimer=setInterval(function(){
+    testTimeLeft--;
+    document.getElementById('tDisp').textContent=fmtT(testTimeLeft);
+    var td=document.getElementById('tDisp');
+    if(testTimeLeft<=300)td.className='tdisp warn';
+    if(testTimeLeft<=60)td.className='tdisp danger';
+    if(testTimeLeft<=0)submitTest(true);
+  },1000);
+}
+
+async function submitTest(auto){
+  clearInterval(testTimer);
+  cleanupLeave();
+  var res=scoreTest();var total=res.total,results=res.results,mp=res.mp;
+  var passed=total>=mp*PASS;
+  var id='gt'+Date.now();
+  S.curId=id;
+  var t={id:id,rookie:S.rookie,answers:Object.assign({},testAntworten),score:total,maxScore:mp,passed:passed,
+    ts:new Date().toLocaleString('de-DE'),tsRaw:Date.now(),results:results,auto:auto,
+    decision:null,ausbilder:S.rookie?S.rookie.ausbilder:'–',
+    leaveLog:S.leaveLog.slice(),leaveCount:S.leaveLog.length,
+    feedback:null};
+  S.tests.push(t);
+  await dbSet('usms_gab_tests',id,t);
+  addLog(S.rookie?S.rookie.name:'Rekrut','SUBMIT',total+'/'+mp+' · '+(passed?'BESTANDEN':'NICHT BESTANDEN'));
+  // Reset feedback form
+  document.getElementById('fbGood').value='';
+  document.getElementById('fbWish').value='';
+  setStar(0);
+  showS('fbScr');
+}
+
+function scoreTest(){
+  var total=0;
+  var qs=GAB_FRAGEN_ACTIVE.length?GAB_FRAGEN_ACTIVE:GAB_FRAGEN;
+  var results=qs.map(function(q){
+    var ans=testAntworten[q.id];var pts=0,status='bad',label='';
+    if(q.type==='radio'){var ci=(q.opts||[]).findIndex(function(o){return o.c});if(ans===ci){pts=q.pts;status='ok'}label=ans!==undefined?((q.opts||[])[ans]?((q.opts||[])[ans].l||'?'):'?'):'(keine Antwort)';}
+    else if(q.type==='checkbox'){var cset=(q.opts||[]).map(function(o,i){return o.c?i:-1}).filter(function(i){return i!==-1}),sel=ans||[];var hits=sel.filter(function(i){return cset.indexOf(i)!==-1}).length,wrong=sel.filter(function(i){return cset.indexOf(i)===-1}).length;pts=cset.length>0?parseFloat((q.pts*Math.max(0,(hits-wrong)/cset.length)).toFixed(2)):0;status=pts>=q.pts?'ok':pts>0?'half':'bad';label=sel.map(function(i){return(q.opts||[])[i]?((q.opts||[])[i].l||''):''}).filter(Boolean).join(', ')||'(keine Antwort)';}
+    else{var kws=Array.isArray(q.kw)?q.kw:String(q.kw||'').split(',').map(function(k){return k.trim()}).filter(Boolean);if(!kws.length){pts=(ans||'').trim().length>20?q.pts*.5:0;status='txt'}else{var txt=(ans||'').toLowerCase();var hits2=kws.filter(function(k){return k&&txt.indexOf(k.toLowerCase())!==-1}).length;pts=parseFloat((q.pts*Math.min(1,hits2/Math.ceil(kws.length*.35))).toFixed(2));status='txt'}label=ans||'(keine Antwort)';}
+    total+=pts;return{q:q,pts:pts,status:status,label:label};
+  });
+  var mp=(GAB_FRAGEN_ACTIVE.length?GAB_FRAGEN_ACTIVE:GAB_FRAGEN).reduce(function(s,q){return s+q.pts},0);
+  return{total:parseFloat(total.toFixed(2)),results:results,mp:mp};
+}
+
+// ═══════════════════════════════════════════
+// TESTS
+// ═══════════════════════════════════════════
+function renderTests(){
+  var el=document.getElementById('testList');
+  var q=(document.getElementById('testSearch').value||'').toLowerCase();
+  var typLabels={gab:'GAB',wb1:'WB 1',wb2:'WB 2',wb3:'WB 3',wbend:'WB End',overwatch:'Overwatch',airsupport:'Air Support',funk:'Funk',beanbag:'Beanbag',langwaffen:'Langwaffen'};
+  var typColors={gab:'#c9a84c',wb1:'#4a7fe8',wb2:'#22c55e',wb3:'#c084fc',wbend:'#f59e0b',overwatch:'#f59e0b',airsupport:'#4a7fe8',funk:'#c9a84c',beanbag:'#f59e0b',langwaffen:'#ef4444'};
+  var list=S.tests.filter(function(t){return !q||(t.rookie&&(t.rookie.name||'').toLowerCase().indexOf(q)!==-1)}).sort(function(a,b){return (b.tsRaw||0)-(a.tsRaw||0)});
+  if(!list.length){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--dim)">Noch keine Tests.</div>';return}
+  el.innerHTML=list.map(function(t){
+    var pct=Math.round(t.score/t.maxScore*100);
+    var dec=t.decision?t.decision.status:'ausstehend';
+    var decLabel={bestanden:'Bestanden',nichtbestanden:'Nicht bestanden',ausstehend:'Ausstehend'}[dec]||'Ausstehend';
+    var typ=(t.rookie&&t.rookie.typ)||'gab';
+    var typLabel=typLabels[typ]||typ.toUpperCase();
+    var typColor=typColors[typ]||'#c9a84c';
+    var card='<div class="tcard" onclick="openRev(\''+t.id+'\')">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+      '<div style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700">'+(t.rookie?h(t.rookie.rang||'')+' · '+h(t.rookie.name||'–'):'–')+'</div>'+
+      '<div style="font-size:9px;color:var(--dim)">'+(t.ts||'')+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+      '<span style="background:'+typColor+'33;color:'+typColor+';border:1px solid '+typColor+'66;border-radius:3px;padding:2px 9px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase">'+typLabel+'</span>'+
+      '<span style="font-size:16px;font-family:Share Tech Mono;color:'+(t.passed?'var(--green)':'var(--red)')+'">'+t.score+'/'+t.maxScore+' Pkt.</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:10px;color:var(--dim)">'+
+      '<span>'+pct+'%</span>'+
+      '<span>DN: '+(t.rookie?h(t.rookie.dn||'–'):'–')+'</span>'+
+      '<span class="sbadge s-'+dec+'">'+decLabel+'</span>'+
+      '</div></div>';
+    return card;
+  }).join('');
+}
+
+function openRev(id){
+  curRevId=id;
+  var t=S.tests.find(function(t){return t.id===id});
+  if(!t)return;
+  var pct=Math.round(t.score/t.maxScore*100);
+  var typFullLabels={gab:'GAB',wb1:'WB 1',wb2:'WB 2',wb3:'WB 3',wbend:'WB End',overwatch:'Overwatch',airsupport:'Air Support',funk:'Funk',beanbag:'Beanbag',langwaffen:'Langwaffen'};
+  var revTyp=typFullLabels[(t.rookie&&t.rookie.typ)||'gab']||'Test';
+  document.getElementById('revTitle').textContent=revTyp+' Test – '+(t.rookie?t.rookie.name:'–');
+  var sc=document.getElementById('revScore');sc.textContent=t.score+'/'+t.maxScore;sc.style.color=t.passed?'var(--green)':'var(--red)';
+  var pa=document.getElementById('revPass');pa.textContent=t.passed?'✔ Bestanden':'✘ Nicht bestanden';pa.style.color=t.passed?'var(--green)':'var(--red)';
+  document.getElementById('revLeaves').textContent=t.leaveCount||0;
+
+  // Leave Log
+  var ll=document.getElementById('revLeaveLog');
+  if(t.leaveLog&&t.leaveLog.length){
+    ll.innerHTML='<div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:6px">SEITENABGÄNGE ('+t.leaveLog.length+')</div>'+
+      t.leaveLog.map(function(l,i){
+        return '<div style="display:flex;align-items:center;gap:9px;padding:4px 9px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.12);border-radius:3px;margin-bottom:4px;font-family:Share Tech Mono,monospace;font-size:10px">'+
+          '<span style="color:var(--red);font-weight:bold;width:18px">#'+(i+1)+'</span>'+
+          '<span style="color:var(--orange)">▶ '+(l.time||'–')+'</span>'+
+          '<span style="color:var(--blue2)">◀ '+(l.ret||'–')+'</span>'+
+          '<span style="color:var(--dim)">'+(l.dur||'–')+'</span></div>';
+      }).join('');
+  } else {
+    ll.innerHTML='<div style="font-size:10px;color:var(--green);margin-bottom:8px">✓ Keine Seitenabgänge</div>';
+  }
+
+  // Feedback
+  var fb=document.getElementById('revFeedback');
+  if(t.feedback){
+    var stars=Array.from({length:5},function(_,i){return '<span style="color:'+(i<(t.feedback.stars||0)?'var(--gold2)':'var(--dim2)')+'">★</span>'}).join('');
+    fb.innerHTML=stars+(t.feedback.good?'<div style="margin-top:6px;font-size:11px;color:var(--text)">👍 '+h(t.feedback.good)+'</div>':'')+
+      (t.feedback.wish?'<div style="margin-top:3px;font-size:11px;color:var(--dim)">💭 '+h(t.feedback.wish)+'</div>':'');
+  } else {
+    fb.innerHTML='<span style="color:var(--dim2)">Kein Feedback</span>';
+  }
+
+  // Questions
+  document.getElementById('revQ').innerHTML=(t.results||[]).map(function(r){
+    var pc=r.pts>=r.q.pts?'pg':r.pts>0?'po':'pr';
+    var tagPrefix = (t.rookie && t.rookie.typ === 'gab') ? '[Tag '+r.q.tag+'] ' : '';
+      return '<div class="qr '+r.status+'"><div class="qrh"><div class="qrq">'+tagPrefix+h(r.q.text||'')+'</div><div class="qrp '+pc+'">'+r.pts+'/'+r.q.pts+'</div></div><div class="qra">Antwort: '+h(r.label||'')+'</div></div>';
+    }).join('');;
+
+  // Chat
+  document.getElementById('chatWrap').innerHTML = renderChatMsgs(t.messages||[]);
+  document.getElementById('chatIn').value='';
+  document.getElementById('decName').value='';
+  document.getElementById('decDN').value='';
+  openMod('revMod');
+}
+
+function renderChatMsgs(messages){
+  if(!messages.length) return '<p style="color:var(--dim2);font-size:11px">Noch keine Nachrichten.</p>';
+  return messages.map(function(m){
+    var isAdmin = m.from !== 'Rekrut';
+    return '<div style="padding:9px 12px;border-radius:4px;font-size:11px;line-height:1.6;max-width:88%;'+
+      (isAdmin?'background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.15);align-self:flex-end;margin-left:auto':'background:rgba(11,14,20,.9);border:1px solid var(--border)')+
+      '"><strong style="display:block;margin-bottom:3px;font-size:10px;color:'+(isAdmin?'var(--gold)':'var(--blue2)')+'">'+h(m.from)+' · '+h(m.time)+'</strong>'+h(m.text)+'</div>';
+  }).join('');
+}
+
+async function sendChat(){
+  var inp=document.getElementById('chatIn');
+  var text=inp.value.trim();
+  if(!text||!curRevId)return;
+  inp.value='';
+  var t=S.tests.find(function(t){return t.id===curRevId});
+  if(!t)return;
+  var msg={from:S.user?S.user.username:'Ausbilder',text:text,time:new Date().toLocaleTimeString('de-DE')};
+  if(!t.messages)t.messages=[];
+  t.messages.push(msg);
+  await dbSet('usms_gab_tests',curRevId,t);
+  document.getElementById('chatWrap').innerHTML=renderChatMsgs(t.messages);
+  addLog(S.user?S.user.username:'Ausbilder','CHAT','Nachricht an '+( t.rookie?t.rookie.name:'?'));
+}
+
+async function decide(status){
+  var name=document.getElementById('decName').value.trim();var dn=document.getElementById('decDN').value.trim();
+  if(!name||!dn){toast('Name und DN eingeben.','warn');return}
+  var t=S.tests.find(function(t){return t.id===curRevId});
+  if(t){t.decision={status:status,officerName:name,officerDN:dn,ts:new Date().toLocaleString('de-DE')};await dbSet('usms_gab_tests',curRevId,t);addLog(name+'('+dn+')','DECISION',(t.rookie?t.rookie.name:'?')+' → '+{bestanden:'Bestanden',nichtbestanden:'Nicht bestanden',ausstehend:'Ausstehend'}[status]);toast('Gespeichert!','gold');}
+  closeMod('revMod');renderTests();
+}
+
+function exportZeugnis(){
+  var t=S.tests.find(function(t){return t.id===curRevId});
+  if(!t){toast('Kein Test ausgewählt.','warn');return;}
+  var pct=Math.round(t.score/t.maxScore*100);
+  var decName=document.getElementById('decName').value||(t.decision?t.decision.officerName:'')||'–';
+  var decDN=document.getElementById('decDN').value||(t.decision?t.decision.officerDN:'')||'–';
+  var tagResults=[1,2,3].map(function(tag){
+    var qs=(t.results||[]).filter(function(r){return r.q.tag===tag});
+    var got=qs.reduce(function(s,r){return s+r.pts},0);
+    var max=qs.reduce(function(s,r){return s+r.q.pts},0);
+    return{tag:tag,got:got.toFixed(1),max:max.toFixed(1),pct:max>0?Math.round(got/max*100):0};
+  });
+  var typLabels2={gab:'GAB – Grundausbildung',wb1:'WB 1 – Fugitive Task Force',wb2:'WB 2 – High Risk Transport',wb3:'WB 3 – Judicial Security',wbend:'WB End – Abschlussprüfung',overwatch:'Overwatch-Ausbildung',airsupport:'Air Support Ausbildung',funk:'Funk-Ausbildung',beanbag:'Beanbag-Ausbildung',langwaffen:'Langwaffen-Ausbildung'};
+  var testTypLabel=typLabels2[t.rookie&&t.rookie.typ?t.rookie.typ:'gab']||'GAB – Grundausbildung';
+  var data={
+    name:t.rookie?t.rookie.name:'–',
+    dn:t.rookie?t.rookie.dn:'–',
+    rang:t.rookie?t.rookie.rang:'–',
+    ausbilder:t.ausbilder||decName||'–',
+    ts:t.ts||'–',
+    score:t.score,
+    maxScore:t.maxScore,
+    pct:pct,
+    passed:t.passed,
+    decName:decName,
+    decDN:decDN,
+    tagResults:tagResults,
+    results:t.results||[],
+    testTyp:testTypLabel
+  };
+  sessionStorage.setItem('usms_zeugnis', JSON.stringify(data));
+  window.open('zeugnis.html','_blank');
+  addLog(S.user?S.user.username:'–','ZEUGNIS','Zeugnis für '+(t.rookie?t.rookie.name||'–':'–'));
+}
+
+// ═══════════════════════════════════════════
+// AKTEN
+// ═══════════════════════════════════════════
+function renderAkten(){
+  var el=document.getElementById('aktenList');
+  var q=(document.getElementById('aktenQ').value||'').toLowerCase();
+  var list=S.akten.filter(function(a){return !q||(a.icName||'').toLowerCase().indexOf(q)!==-1}).sort(function(a,b){return (b.tsRaw||0)-(a.tsRaw||0)});
+  if(!list.length){el.innerHTML='<p style="color:var(--dim);font-size:11px">Keine Akten.</p>';return}
+  el.innerHTML=list.map(function(a){return '<div class="akte-row" onclick="openAkte(\''+a.id+'\')"><div style="flex:1"><div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:700">'+h(a.icName||'–')+'</div><div style="font-size:10px;color:var(--dim);margin-top:2px">DN: '+h(a.dn||'–')+' · '+h(a.rang||'–')+' · '+(a.ausbildungen||[]).length+' Einträge</div></div><span class="sbadge s-'+(a.status||'aktiv')+'">'+(a.status==='abgeschlossen'?'Abgeschlossen':a.status==='inaktiv'?'Inaktiv':'Aktiv')+'</span></div>'}).join('');
+}
+
+function openAkte(id){
+  akteId=id;ausbItems=[];
+  document.getElementById('akteModalTitle').textContent=id?'Akte bearbeiten':'Neue Ausbildungsakte';
+  document.getElementById('btnDelAkte').style.display=id?'flex':'none';
+  if(id){var a=S.akten.find(function(a){return a.id===id});if(!a)return;document.getElementById('akteIC').value=a.icName||'';document.getElementById('akteDN2').value=a.dn||'';document.getElementById('akteRang').value=a.rang||'Rekrut Marshal';document.getElementById('akteStatus').value=a.status||'aktiv';document.getElementById('akteNotiz').value=a.notiz||'';ausbItems=(a.ausbildungen||[]).slice();}
+  else{document.getElementById('akteIC').value='';document.getElementById('akteDN2').value='';document.getElementById('akteStatus').value='aktiv';document.getElementById('akteNotiz').value='';}
+  renderAusbModal();openMod('akteMod');
+}
+
+function renderAusbModal(){
+  var el=document.getElementById('ausbListModal');
+  if(!ausbItems.length){el.innerHTML='<p style="color:var(--dim);font-size:11px;margin-bottom:8px">Keine Einträge.</p>';return}
+  el.innerHTML = '';
+  if(!ausbItems.length){
+    el.innerHTML = '<p style="color:var(--dim);font-size:11px;margin-bottom:8px">Keine Einträge.</p>';
+    return;
+  }
+  ausbItems.forEach(function(a, i){
+    var row = document.createElement('div');
+    row.className = 'ausb-row';
+
+    var rmBtn = document.createElement('button');
+    rmBtn.className = 'ausb-rm';
+    rmBtn.textContent = '✕';
+    rmBtn.onclick = function(){ ausbItems.splice(i,1); renderAusbModal(); };
+    row.appendChild(rmBtn);
+
+    var grid = document.createElement('div');
+    grid.className = 'g2';
+
+    var fg1 = document.createElement('div'); fg1.className = 'fg'; fg1.style.marginBottom = '0';
+    var lbl1 = document.createElement('label'); lbl1.className = 'fl'; lbl1.textContent = 'Ausbildung';
+    var inp1 = document.createElement('input'); inp1.className = 'fi'; inp1.style.fontSize = '11px';
+    inp1.placeholder = 'GAB Tag 1, WB 1 etc.'; inp1.value = a.inhalt || '';
+    inp1.oninput = (function(idx){ return function(){ ausbItems[idx].inhalt = this.value; }; })(i);
+    fg1.appendChild(lbl1); fg1.appendChild(inp1);
+
+    var fg2 = document.createElement('div'); fg2.className = 'fg'; fg2.style.marginBottom = '0';
+    var lbl2 = document.createElement('label'); lbl2.className = 'fl'; lbl2.textContent = 'Datum';
+    var inp2 = document.createElement('input'); inp2.className = 'fi'; inp2.type = 'date';
+    inp2.style.fontSize = '11px'; inp2.value = a.datum || '';
+    inp2.oninput = (function(idx){ return function(){ ausbItems[idx].datum = this.value; }; })(i);
+    fg2.appendChild(lbl2); fg2.appendChild(inp2);
+
+    grid.appendChild(fg1); grid.appendChild(fg2);
+    row.appendChild(grid);
+    el.appendChild(row);
+  });
+}
+
+async function saveAkte(){
+  var ic=document.getElementById('akteIC').value.trim();var dn=document.getElementById('akteDN2').value.trim();
+  if(!ic){toast('IC-Name eingeben.','warn');return}
+  var id=akteId||('ak'+Date.now());
+  var data={id:id,icName:ic,dn:dn,rang:document.getElementById('akteRang').value,status:document.getElementById('akteStatus').value,notiz:document.getElementById('akteNotiz').value.trim(),ausbildungen:ausbItems.slice(),ts:new Date().toLocaleString('de-DE'),tsRaw:Date.now()};
+  await dbSet('usms_akten',id,data);
+  var idx=S.akten.findIndex(function(a){return a.id===id});
+  if(idx>=0)S.akten[idx]=data;else S.akten.unshift(data);
+  addLog(S.user?S.user.username:'–','AKTE',(akteId?'Bearbeitet: ':'Erstellt: ')+ic);
+  closeMod('akteMod');renderAkten();toast('Gespeichert!','gold');
+}
+
+async function delAkte(){
+  if(!akteId||!confirm('Wirklich löschen?'))return;
+  var a=S.akten.find(function(a){return a.id===akteId});
+  await dbDel('usms_akten',akteId);
+  S.akten=S.akten.filter(function(a){return a.id!==akteId});
+  addLog(S.user?S.user.username:'–','AKTE','Gelöscht: '+(a?a.icName:'?'));
+  closeMod('akteMod');renderAkten();toast('Gelöscht.','warn');
+}
+
+// ═══════════════════════════════════════════
+// LOGS
+// ═══════════════════════════════════════════
+var currentLogFilter = 'all';
+
+function filterLogs(typ){
+  currentLogFilter = typ;
+  document.querySelectorAll('.logtab').forEach(function(b){ b.classList.remove('on'); });
+  var btn = document.getElementById('logtab_'+typ);
+  if(btn) btn.classList.add('on');
+  renderLogs();
+}
+
+function renderLogs(){
+  var tb = document.getElementById('logBody');
+  var logs = S.logs.filter(function(l){
+    return currentLogFilter === 'all' || l.type === currentLogFilter;
+  });
+  if(!logs.length){
+    tb.innerHTML='<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:18px">Keine Einträge.</td></tr>';
+    return;
+  }
+  var cl={LOGIN:'lb-l',CODE:'lb-c',SUBMIT:'lb-s',DECISION:'lb-d',AKTE:'lb-a',ZEUGNIS:'lb-c',CHAT:'lb-l',FRAGEN:'lb-c'};
+  tb.innerHTML = logs.map(function(l){
+    return '<tr><td>'+h(l.ts)+'</td><td>'+h(l.date)+'</td><td>'+h(l.user)+'</td>'+
+      '<td><span class="lb '+(cl[l.type]||'lb-l')+'">'+h(l.type)+'</span></td>'+
+      '<td>'+h(l.detail)+'</td></tr>';
+  }).join('');
+}
+
+function openLogPdfModal(){
+  // Collect unique users from logs + tests
+  var users = {};
+  S.logs.forEach(function(l){ if(l.user) users[l.user]=true; });
+  S.tests.forEach(function(t){ if(t.ausbilder) users[t.ausbilder]=true; });
+  var sel = document.getElementById('logPdfUser');
+  sel.innerHTML = '<option value="all">— Alle Logs —</option>';
+  Object.keys(users).sort().forEach(function(u){
+    var opt = document.createElement('option');
+    opt.value = u; opt.textContent = u;
+    sel.appendChild(opt);
+  });
+  openMod('logPdfMod');
+}
+
+function generateLogPdf(){
+  var targetUser = document.getElementById('logPdfUser').value;
+  var isAll = targetUser === 'all';
+  var filteredLogs = isAll ? S.logs : S.logs.filter(function(l){ return l.user === targetUser; });
+  var filteredTests = isAll ? S.tests : S.tests.filter(function(t){
+    return t.ausbilder === targetUser || (t.decision && t.decision.officerName === targetUser);
+  });
+  var now = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var title = isAll ? 'Alle Aktivitäten' : 'Ausbilder-Bericht: '+targetUser;
+  var passed = filteredTests.filter(function(t){return t.passed}).length;
+  var notPassed = filteredTests.length - passed;
+
+  var typLabels={gab:'GAB',wb1:'WB 1',wb2:'WB 2',wb3:'WB 3',wbend:'WB End',overwatch:'Overwatch',airsupport:'Air Support',funk:'Funk',beanbag:'Beanbag',langwaffen:'Langwaffen'};
+  var cl={LOGIN:'#2a5fd4',CODE:'#c9a84c',SUBMIT:'#22c55e',DECISION:'#f59e0b',AKTE:'#8b5cf6',ZEUGNIS:'#c9a84c',CHAT:'#4a7fe8'};
+
+  var logRows = filteredLogs.map(function(l){
+    var color = cl[l.type]||'#4a7fe8';
+    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:10px">'+h(l.date)+' '+h(l.ts)+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:11px">'+h(l.user)+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0"><span style="background:'+color+'22;color:'+color+';border:1px solid '+color+'44;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700">'+h(l.type)+'</span></td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:11px">'+h(l.detail)+'</td></tr>';
+  }).join('');
+
+  var testRows = filteredTests.map(function(t){
+    var pct = t.maxScore ? Math.round(t.score/t.maxScore*100) : 0;
+    var typ = typLabels[t.rookie&&t.rookie.typ?t.rookie.typ:'gab']||'GAB';
+    var dec = t.decision ? ({bestanden:'Bestanden',nichtbestanden:'Nicht bestanden',ausstehend:'Ausstehend'}[t.decision.status]||'–') : 'Ausstehend';
+    var col = t.passed ? '#15803d' : '#dc2626';
+    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:10px">'+h(t.ts||'–')+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:11px;font-weight:600">'+h(t.rookie?t.rookie.name:'–')+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:10px">'+h(t.rookie?t.rookie.dn:'–')+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:10px">'+typ+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:11px;color:'+col+'">'+t.score+'/'+t.maxScore+' ('+pct+'%)</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid #e2e4f0;font-size:10px;color:'+col+'">'+h(dec)+'</td></tr>';
+  }).join('');
+
+  var css = 'body{font-family:Arial,sans-serif;background:#fff;color:#1a1f2e;-webkit-print-color-adjust:exact}'
+    +'table{width:100%;border-collapse:collapse}'
+    +'th{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a8098;text-align:left;padding:7px 10px;border-bottom:2px solid #e2e4f0;background:#f8f9ff}'
+    +'.hdr{background:linear-gradient(135deg,#07090d,#1a2a50 60%,#c9a84c);padding:28px 40px;display:flex;align-items:center;gap:20px;color:#fff}'
+    +'.gold{height:3px;background:linear-gradient(90deg,#c9a84c,#e8c46a 50%,#c9a84c)}'
+    +'.banner{background:#1a2a50;color:#c9a84c;text-align:center;padding:9px;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:4px}'
+    +'.body{padding:32px 40px}'
+    +'.sec{font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;color:#1a2a50;text-transform:uppercase;letter-spacing:3px;border-bottom:2px solid #c9a84c;padding-bottom:5px;margin:20px 0 12px}'
+    +'.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}'
+    +'.sbox{background:#f8f9ff;border:1px solid #e2e4f0;border-radius:6px;padding:11px;text-align:center}'
+    +'.snum{font-family:monospace;font-size:20px;font-weight:bold;color:#1a2a50}'
+    +'.slbl{font-size:9px;color:#7a8098;text-transform:uppercase;letter-spacing:1px}'
+    +'@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}.noprint{display:none!important}}';
+
+  var statsHtml = '<div class="stats">'
+    +'<div class="sbox"><div class="snum">'+filteredLogs.length+'</div><div class="slbl">Log-Einträge</div></div>'
+    +'<div class="sbox"><div class="snum">'+filteredTests.length+'</div><div class="slbl">Tests gesamt</div></div>'
+    +'<div class="sbox"><div class="snum" style="color:#15803d">'+passed+'</div><div class="slbl">Bestanden</div></div>'
+    +'<div class="sbox"><div class="snum" style="color:#dc2626">'+notPassed+'</div><div class="slbl">Nicht bestanden</div></div>'
+    +'</div>';
+
+  var testsHtml = filteredTests.length
+    ? '<div class="sec">Tests &amp; Ergebnisse</div><table><thead><tr><th>Datum</th><th>Rekrut</th><th>DN</th><th>Typ</th><th>Punkte</th><th>Entscheidung</th></tr></thead><tbody>'+testRows+'</tbody></table>'
+    : '';
+
+  var logsHtml = '<div class="sec">Aktivit&auml;ts-Logs ('+filteredLogs.length+')</div>'
+    +'<table><thead><tr><th>Datum / Zeit</th><th>Nutzer</th><th>Typ</th><th>Details</th></tr></thead><tbody>'+logRows+'</tbody></table>';
+
+  var win = window.open('','_blank');
+  var doc = win.document;
+  doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+h(title)+'</title>');
+  doc.write('<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">');
+  doc.write('<style>'+css+'</style></head><body>');
+  doc.write('<div class="noprint" style="position:fixed;top:12px;right:12px;display:flex;gap:8px;z-index:999">');
+  doc.write('<button onclick="window.print()" style="background:#1a2a50;color:#c9a84c;border:1px solid #c9a84c;padding:7px 16px;border-radius:5px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">PDF speichern</button>');
+  doc.write('<button onclick="window.close()" style="background:#eee;color:#333;border:1px solid #ccc;padding:7px 12px;border-radius:5px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#x2715;</button>');
+  doc.write('</div>');
+  doc.write('<div class="hdr">');
+  doc.write('<svg width="60" height="60" viewBox="0 0 80 80" fill="none"><polygon points="40,4 76,22 76,58 40,76 4,58 4,22" fill="rgba(201,168,76,0.2)" stroke="#c9a84c" stroke-width="2"/><circle cx="40" cy="40" r="14" fill="none" stroke="#2a5fd4" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani" font-weight="700" font-size="10">USMS</text></svg>');
+  doc.write('<div><div style="font-size:9px;letter-spacing:3px;color:rgba(201,168,76,.8);text-transform:uppercase;margin-bottom:4px">United States Marshals Service &middot; Senora City</div>');
+  doc.write('<div style="font-size:26px;font-weight:700;letter-spacing:2px;margin-bottom:2px">'+h(title)+'</div>');
+  doc.write('<div style="font-size:10px;color:rgba(255,255,255,.6)">Erstellt am '+now+'</div></div></div>');
+  doc.write('<div class="gold"></div>');
+  doc.write('<div class="banner">A K T I V I T &Auml; T S B E R I C H T</div>');
+  doc.write('<div class="body">');
+  doc.write('<div class="sec">&Uuml;bersicht</div>');
+  doc.write(statsHtml);
+  doc.write(testsHtml);
+  doc.write(logsHtml);
+  doc.write('<div style="text-align:center;margin-top:24px;font-size:9px;color:#c8ccd8;letter-spacing:3px;text-transform:uppercase">U.S. Marshals Service &middot; Senora City &middot; Vertraulich</div>');
+  doc.write('</div></' + 'body></' + 'html>');
+  doc.close();
+  closeMod('logPdfMod');
+  addLog(S.user?S.user.username:'–','LOGS','PDF: '+(isAll?'Alle':targetUser));
+}
+
+// ═══════════════════════════════════════════
+// TEST EDITOR
+// ═══════════════════════════════════════════
+var EDITOR_PIN = '009';
+var editorUnlocked = false;
+var currentEditorQuestions = [];
+
+function unlockEditor(){
+  var pin = document.getElementById('editorPin').value.trim();
+  if(pin === EDITOR_PIN){
+    editorUnlocked = true;
+    document.getElementById('testEditorLock').style.display = 'none';
+    document.getElementById('testEditorContent').style.display = 'block';
+    document.getElementById('editorPin').value = '';
+    loadQuestionsForEditor();
+    toast('Editor entsperrt!','gold');
+  } else {
+    document.getElementById('pinErr').textContent = 'Falscher PIN!';
+    document.getElementById('pinErr').style.display = 'block';
+  }
+}
+
+async function loadQuestionsForEditor(){
+  var typ = document.getElementById('editorTestType').value;
+  var col = 'usms_questions_' + typ;
+  try{
+    var rows = await dbAll(col, 'idx', 'asc');
+    if(rows.length){
+      currentEditorQuestions = rows;
+    } else {
+      currentEditorQuestions = JSON.parse(JSON.stringify(getDefaultQuestionsForType(typ)));
+    }
+  }catch(e){
+    currentEditorQuestions = JSON.parse(JSON.stringify(getDefaultQuestionsForType(typ)));
+  }
+  renderQuestionEditor();
+  toast('Fragen geladen: ' + currentEditorQuestions.length,'gold');
+}
+
+async function saveQuestionsFromEditor(){
+  var typ = document.getElementById('editorTestType').value;
+  var col = 'usms_questions_' + typ;
+  var cards = document.querySelectorAll('[data-qedit]');
+  var qs = [];
+  cards.forEach(function(card, idx){
+    var id = card.dataset.qedit || ('q'+Date.now()+'_'+idx);
+    var type = card.querySelector('.qe-type').value;
+    var text = card.querySelector('.qe-text').value.trim();
+    var pts = parseFloat(card.querySelector('.qe-pts').value) || 1;
+    var tag = parseInt(card.querySelector('.qe-tag').value) || 1;
+    var kw = (card.querySelector('.qe-kw')||{}).value || '';
+    var scenario = (card.querySelector('.qe-scenario')||{}).value || '';
+    var opts = [];
+    card.querySelectorAll('.opt-label').forEach(function(inp, i){
+      var l = inp.value.trim();
+      var c = card.querySelectorAll('.opt-cor')[i] ? card.querySelectorAll('.opt-cor')[i].checked : false;
+      if(l) opts.push({l:l, c:c});
+    });
+    qs.push({id:id, idx:idx, type:type, text:text, pts:pts, tag:tag, kw:kw, opts:opts, scenario:scenario});
+  });
+  for(var i=0;i<qs.length;i++){
+    await dbSet(col, qs[i].id, qs[i]);
+  }
+  currentEditorQuestions = qs;
+  addLog(S.user?S.user.username:'–','FRAGEN','Gespeichert: '+typ+' ('+qs.length+' Fragen)');
+  toast('Gespeichert! ' + qs.length + ' Fragen für ' + typ.toUpperCase(),'gold');
+}
+
+function renderQuestionEditor(){
+  var el = document.getElementById('questionEditor');
+  el.innerHTML = '';
+  if(!currentEditorQuestions.length){
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--dim);padding:32px">Noch keine Fragen. Klicke "+ Frage hinzufügen".</div>';
+    return;
+  }
+  var typ = document.getElementById('editorTestType').value;
+  var hasTag = typ === 'gab';
+
+  currentEditorQuestions.forEach(function(q, i){
+    // Card
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '10px';
+    card.dataset.qedit = q.id;
+
+    // Header row
+    var hdr = document.createElement('div');
+    hdr.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap';
+
+    var lbl = document.createElement('span');
+    lbl.style.cssText = 'font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px';
+    lbl.textContent = 'F'+(i+1);
+    hdr.appendChild(lbl);
+
+    var typesel = document.createElement('select');
+    typesel.className = 'fi qe-type';
+    typesel.style.cssText = 'width:160px;font-size:11px';
+    typesel.onchange = function(){ toggleQEView(this); };
+    ['radio:Einfachauswahl','checkbox:Mehrfachauswahl','text:Freitext'].forEach(function(opt){
+      var parts = opt.split(':');
+      var o = document.createElement('option');
+      o.value = parts[0]; o.textContent = parts[1];
+      if(q.type === parts[0]) o.selected = true;
+      typesel.appendChild(o);
+    });
+    hdr.appendChild(typesel);
+
+    var ptsinp = document.createElement('input');
+    ptsinp.className = 'fi qe-pts';
+    ptsinp.type = 'number'; ptsinp.step = '0.5'; ptsinp.min = '0.5'; ptsinp.max = '10';
+    ptsinp.value = q.pts || 1;
+    ptsinp.style.cssText = 'width:65px;font-size:11px';
+    ptsinp.placeholder = 'Pkt';
+    hdr.appendChild(ptsinp);
+
+    if(hasTag){
+      var tagsel = document.createElement('select');
+      tagsel.className = 'fi qe-tag';
+      tagsel.style.cssText = 'width:90px;font-size:11px';
+      [1,2,3].forEach(function(t){
+        var o = document.createElement('option');
+        o.value = t; o.textContent = 'Tag '+t;
+        if(q.tag === t) o.selected = true;
+        tagsel.appendChild(o);
+      });
+      hdr.appendChild(tagsel);
+    } else {
+      var taghid = document.createElement('input');
+      taghid.type = 'hidden'; taghid.className = 'qe-tag'; taghid.value = '1';
+      hdr.appendChild(taghid);
+    }
+
+    var delbtn = document.createElement('button');
+    delbtn.className = 'btn btn-r btn-xs';
+    delbtn.style.marginLeft = 'auto';
+    delbtn.textContent = '✕ Löschen';
+    delbtn.onclick = function(){ this.closest('[data-qedit]').remove(); };
+    hdr.appendChild(delbtn);
+    card.appendChild(hdr);
+
+    // Question text
+    var qfg = document.createElement('div'); qfg.className = 'fg';
+    var qlbl = document.createElement('label'); qlbl.className = 'fl'; qlbl.textContent = 'Frage';
+    var qta = document.createElement('textarea');
+    qta.className = 'fi qe-text'; qta.rows = 2; qta.style.fontSize = '11px';
+    qta.value = q.text || '';
+    qfg.appendChild(qlbl); qfg.appendChild(qta);
+    card.appendChild(qfg);
+
+    // Scenario/KW wrap (text only)
+    var scenWrap = document.createElement('div');
+    scenWrap.className = 'qe-scen-wrap';
+    if(q.type !== 'text') scenWrap.style.display = 'none';
+
+    var scenfg = document.createElement('div'); scenfg.className = 'fg';
+    var scenlbl = document.createElement('label'); scenlbl.className = 'fl'; scenlbl.textContent = 'Szenario (optional)';
+    var scenta = document.createElement('textarea');
+    scenta.className = 'fi qe-scenario'; scenta.rows = 2; scenta.style.fontSize = '11px';
+    scenta.value = q.scenario || '';
+    scenfg.appendChild(scenlbl); scenfg.appendChild(scenta);
+    scenWrap.appendChild(scenfg);
+
+    var kwfg = document.createElement('div'); kwfg.className = 'fg';
+    var kwlbl = document.createElement('label'); kwlbl.className = 'fl'; kwlbl.textContent = 'Schlüsselwörter (kommagetrennt)';
+    var kwinp = document.createElement('input');
+    kwinp.className = 'fi qe-kw'; kwinp.style.fontSize = '11px';
+    kwinp.placeholder = 'z.B. befehl, disziplin, team';
+    kwinp.value = Array.isArray(q.kw) ? q.kw.join(', ') : (q.kw || '');
+    kwfg.appendChild(kwlbl); kwfg.appendChild(kwinp);
+    scenWrap.appendChild(kwfg);
+    card.appendChild(scenWrap);
+
+    // Options wrap (radio/checkbox)
+    var optsWrap = document.createElement('div');
+    optsWrap.className = 'qe-opts-wrap';
+    if(q.type === 'text') optsWrap.style.display = 'none';
+
+    var optsLbl = document.createElement('div');
+    optsLbl.style.cssText = 'font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:6px';
+    optsLbl.innerHTML = 'ANTWORTEN <span style="color:var(--dim2);font-size:8px">(✓ = richtig)</span>';
+    optsWrap.appendChild(optsLbl);
+
+    var optList = document.createElement('div');
+    optList.className = 'opt-list';
+    (q.opts||[]).forEach(function(o){
+      optList.appendChild(makeOptRow(o.l||'', o.c||false));
+    });
+    optsWrap.appendChild(optList);
+
+    var addOptBtn = document.createElement('button');
+    addOptBtn.className = 'btn btn-s btn-xs';
+    addOptBtn.style.marginTop = '5px';
+    addOptBtn.textContent = '+ Antwort';
+    addOptBtn.onclick = function(){ this.previousElementSibling.appendChild(makeOptRow('',false)); };
+    optsWrap.appendChild(addOptBtn);
+    card.appendChild(optsWrap);
+
+    el.appendChild(card);
+  });
+}
+
+function makeOptRow(label, checked){
+  var d = document.createElement('div');
+  d.style.cssText = 'display:flex;align-items:center;gap:7px;margin-bottom:5px';
+  var inp = document.createElement('input');
+  inp.className = 'fi opt-label'; inp.placeholder = 'Antwort';
+  inp.style.cssText = 'flex:1;font-size:11px;padding:7px 10px';
+  inp.value = label;
+  var chk = document.createElement('input');
+  chk.type = 'checkbox'; chk.className = 'opt-cor'; chk.checked = checked;
+  chk.style.cssText = 'width:15px;height:15px;accent-color:var(--gold);cursor:pointer';
+  var rm = document.createElement('button');
+  rm.className = 'btn btn-r btn-xs'; rm.textContent = '✕';
+  rm.onclick = function(){ this.closest('div').remove(); };
+  d.appendChild(inp); d.appendChild(chk); d.appendChild(rm);
+  return d;
+}
+
+function toggleQEView(sel){
+  var card = sel.closest('[data-qedit]');
+  var isTxt = sel.value === 'text';
+  card.querySelector('.qe-scen-wrap').style.display = isTxt ? '' : 'none';
+  card.querySelector('.qe-opts-wrap').style.display = isTxt ? 'none' : '';
+}
+
+function addOptToCard(btn){
+  var ol = btn.previousElementSibling;
+  var d = document.createElement('div');
+  d.style.cssText = 'display:flex;align-items:center;gap:7px;margin-bottom:5px';
+  d.innerHTML = '<input class="fi opt-label" placeholder="Neue Antwort" style="flex:1;font-size:11px;padding:7px 10px">'+
+    '<input type="checkbox" class="opt-cor" style="width:15px;height:15px;accent-color:var(--gold);cursor:pointer">'+
+    '<button class="btn btn-r btn-xs" onclick="this.parentNode.remove()">✕</button>';
+  ol.appendChild(d);
+}
+
+function addNewQuestion(){
+  var typ = document.getElementById('editorTestType').value;
+  var newQ = {id:'q'+Date.now(), idx:currentEditorQuestions.length, type:'radio', text:'Neue Frage', pts:1, tag:1, kw:'', scenario:'', opts:[{l:'Richtig',c:true},{l:'Falsch',c:false}]};
+  currentEditorQuestions.push(newQ);
+  renderQuestionEditor();
+  // Scroll to bottom
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function changePIN(){
+  var newPin = document.getElementById('newPinInput').value.trim();
+  if(!newPin || newPin.length < 3){toast('PIN muss mindestens 3 Zeichen haben.','warn');return;}
+  EDITOR_PIN = newPin;
+  document.getElementById('newPinInput').value = '';
+  toast('PIN geändert!','gold');
+}
+
+// ═══════════════════════════════════════════
+// LEAVE TRACKING
+// ═══════════════════════════════════════════
+function setupLeave(){
+  document.addEventListener('visibilitychange', onVis);
+  window.addEventListener('blur', onBlur);
+  window.addEventListener('focus', onFoc);
+}
+function onVis(){document.hidden ? onBlur() : onFoc();}
+function onBlur(){
+  if(!S.leaveStart){
+    S.leaveStart = new Date();
+    S.leaveLog.push({time: S.leaveStart.toLocaleTimeString('de-DE'), ret: null, dur: null});
+    document.getElementById('lCnt').textContent = S.leaveLog.length;
+    var bdg = document.getElementById('lBdg');
+    if(bdg) bdg.style.animation = 'pulse 1.2s infinite';
+  }
+}
+function onFoc(){
+  if(S.leaveStart){
+    var now = new Date();
+    var dur = Math.round((now - S.leaveStart) / 1000);
+    var last = S.leaveLog[S.leaveLog.length - 1];
+    if(last && !last.ret){last.ret = now.toLocaleTimeString('de-DE'); last.dur = dur + 's';}
+    S.leaveStart = null;
+  }
+}
+function cleanupLeave(){
+  document.removeEventListener('visibilitychange', onVis);
+  window.removeEventListener('blur', onBlur);
+  window.removeEventListener('focus', onFoc);
+}
+
+// ═══════════════════════════════════════════
+// FEEDBACK & ANALYSE
+// ═══════════════════════════════════════════
+function setStar(n){
+  S.stars = n;
+  for(var i=1;i<=5;i++){
+    var b = document.getElementById('star'+i);
+    if(b) b.style.color = i<=n ? 'var(--gold2)' : 'var(--dim2)';
+  }
+}
+
+async function submitFeedback(){
+  var t = S.tests.find(function(t){return t.id === S.curId});
+  if(t){
+    t.feedback = {
+      stars: S.stars,
+      good: document.getElementById('fbGood').value.trim(),
+      wish: document.getElementById('fbWish').value.trim()
+    };
+    await dbSet('usms_gab_tests', t.id, t);
+  }
+  showS('analyseScr');
+  buildAnalyse(t);
+}
+
+async function buildAnalyse(t){
+  var el = document.getElementById('analyseText');
+  if(!t){el.textContent='Keine Testdaten.';return;}
+  var mp = maxPts();
+  var pct = Math.round(t.score/mp*100);
+  var weak = (t.results||[]).filter(function(r){return r.pts < r.q.pts*.5 && r.q.type!=='text'}).map(function(r){return r.q.text.substring(0,55)});
+  var strong = (t.results||[]).filter(function(r){return r.pts >= r.q.pts && r.q.type!=='text'}).map(function(r){return r.q.text.substring(0,45)});
+
+  var prompt = 'Du bist Lerncoach des USMS Senora City. Ein Rekrut hat seinen GAB-Test abgeschlossen.\n\n' +
+    'Ergebnis: ' + t.score + '/' + mp + ' (' + pct + '%)' +
+    ' | Seitenabgänge: ' + (t.leaveLog ? t.leaveLog.length : 0) + '\n' +
+    'Gut beantwortet: ' + (strong.slice(0,4).join(', ')||'–') + '\n' +
+    'Schwächen erkannt: ' + (weak.slice(0,5).join(', ')||'keine') + '\n\n' +
+    'Schreibe eine persönliche Lernanalyse auf Deutsch in der Du-Form.\n' +
+    'WICHTIG: Sage NICHT ob er bestanden hat oder nicht. Keine Punktzahl nennen.\n' +
+    'Format:\n' +
+    '• Kurze positive Eröffnung (1 Satz)\n' +
+    '• 3-4 konkrete Lernpunkte mit • Bullet\n' +
+    '• Motivierender Abschluss (1 Satz)\n' +
+    'Max. 8 Sätze, freundlich und direkt.';
+
+  try{
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:420,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var d = await r.json();
+    el.textContent = (d.content && d.content[0] && d.content[0].text) ? d.content[0].text : fallbackAnalyse(weak);
+  }catch(e){
+    el.textContent = fallbackAnalyse(weak);
+  }
+}
+
+function fallbackAnalyse(weak){
+  return 'Lernempfehlungen:\n' +
+    (weak.length ? weak.map(function(w){return '• '+w}).join('\n') : '• Keine größeren Lücken erkannt.') +
+    '\n\n• Funk-Regeln wiederholen\n• Festnahme-Grundlagen festigen\n• Disziplin und Teamarbeit stärken\n\nViel Erfolg bei der weiteren Ausbildung!';
+}
+
+// ═══════════════════════════════════════════
+// EVENT LISTENERS – ALLES HIER UNTEN
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  function safe(id, fn){ var el=document.getElementById(id); if(el) fn(el); }
+
+  // Login
+  safe('btnDiscord', function(el){ el.addEventListener('click', discordLogin); });
+  safe('btnRookie', function(el){ el.addEventListener('click', rookieLogin); });
+  safe('rCode', function(el){ el.addEventListener('keydown', function(e){ if(e.key==='Enter') rookieLogin(); }); });
+
+  // Admin
+  safe('btnLogout', function(el){ el.addEventListener('click', doLogout); });
+  for(var i=1;i<=7;i++){(function(n){ safe('tabBtn'+n, function(el){ el.addEventListener('click', function(){ goTab(n); }); }); })(i);}
+
+  // Code
+  safe('btnGenCode', function(el){ el.addEventListener('click', genCode); });
+
+  // Test
+  safe('btnStartTest', function(el){ el.addEventListener('click', startTest); });
+  safe('btnSubmit', function(el){ el.addEventListener('click', function(){ if(confirm('Test wirklich abgeben?')) submitTest(false); }); });
+  safe('testSearch', function(el){ el.addEventListener('input', renderTests); });
+
+  // Review Modal
+  safe('btnCloseRev', function(el){ el.addEventListener('click', function(){ closeMod('revMod'); }); });
+  safe('btnBestanden', function(el){ el.addEventListener('click', function(){ decide('bestanden'); }); });
+  safe('btnNichtBestanden', function(el){ el.addEventListener('click', function(){ decide('nichtbestanden'); }); });
+  safe('btnAusstehend', function(el){ el.addEventListener('click', function(){ decide('ausstehend'); }); });
+  safe('btnZeugnis', function(el){ el.addEventListener('click', exportZeugnis); });
+
+  // Akte Modal
+  safe('btnNewAkte', function(el){ el.addEventListener('click', function(){ openAkte(null); }); });
+  safe('btnCloseAkte', function(el){ el.addEventListener('click', function(){ closeMod('akteMod'); }); });
+  safe('btnAddAusb', function(el){ el.addEventListener('click', function(){ ausbItems.push({inhalt:'',datum:new Date().toISOString().split('T')[0]}); renderAusbModal(); }); });
+  safe('btnSaveAkte', function(el){ el.addEventListener('click', saveAkte); });
+  safe('btnDelAkte', function(el){ el.addEventListener('click', delAkte); });
+  safe('aktenQ', function(el){ el.addEventListener('input', renderAkten); });
+
+  // Logs PDF
+  safe('btnLogPdf', function(el){ el.addEventListener('click', openLogPdfModal); });
+  safe('btnGenLogPdf', function(el){ el.addEventListener('click', generateLogPdf); });
+
+  // Test Editor
+  safe('btnUnlockEditor', function(el){ el.addEventListener('click', unlockEditor); });
+  safe('editorPin', function(el){ el.addEventListener('keydown', function(e){ if(e.key==='Enter') unlockEditor(); }); });
+  safe('btnLoadQuestions', function(el){ el.addEventListener('click', loadQuestionsForEditor); });
+  safe('btnSaveQuestions', function(el){ el.addEventListener('click', saveQuestionsFromEditor); });
+  safe('btnAddQuestion', function(el){ el.addEventListener('click', addNewQuestion); });
+  safe('btnChangePin', function(el){ el.addEventListener('click', changePIN); });
+  safe('editorTestType', function(el){ el.addEventListener('change', loadQuestionsForEditor); });
+
+  // WB Cards
+  safe('wbCard1', function(el){ el.addEventListener('click', function(){ openWbInfo('WB 1 – Grundvertiefung'); }); });
+  safe('wbCard2', function(el){ el.addEventListener('click', function(){ openWbInfo('WB 2 – Fortgeschrittene Taktik'); }); });
+  safe('wbCard3', function(el){ el.addEventListener('click', function(){ openWbInfo('WB 3 – Spezialeinsatz'); }); });
+  safe('wbCardEnd', function(el){ el.addEventListener('click', function(){ openWbInfo('WB End – Abschlussprüfung'); }); });
+  safe('btnCloseWb', function(el){ el.addEventListener('click', function(){ closeMod('wbMod'); }); });
+
+  // Modal Backdrop
+  document.querySelectorAll('.mover').forEach(function(m){
+    m.addEventListener('click', function(e){ if(e.target===m) m.classList.remove('on') });
+  });
+});
+
+function openWbInfo(title){
+  document.getElementById('wbTitle').textContent=title;
+  document.getElementById('wbBody').innerHTML='<p style="color:var(--dim);font-size:13px;line-height:1.7">Dokument folgt sobald es vom USMS-Hochkommand bereitgestellt wird.</p><div style="margin-top:16px;padding:12px;background:rgba(201,168,76,.06);border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--dim)">Sobald das Dokument verfügbar ist, werden hier Tests freigeschaltet.</div>';
+  openMod('wbMod');
+}
+
+function openAkte(id){ 
+  akteId=id; ausbItems=[];
+  document.getElementById('akteModalTitle').textContent=id?'Akte bearbeiten':'Neue Ausbildungsakte';
+  document.getElementById('btnDelAkte').style.display=id?'flex':'none';
+  if(id){var a=S.akten.find(function(a){return a.id===id});if(!a)return;document.getElementById('akteIC').value=a.icName||'';document.getElementById('akteDN2').value=a.dn||'';document.getElementById('akteRang').value=a.rang||'Rekrut Marshal';document.getElementById('akteStatus').value=a.status||'aktiv';document.getElementById('akteNotiz').value=a.notiz||'';ausbItems=(a.ausbildungen||[]).slice();}
+  else{document.getElementById('akteIC').value='';document.getElementById('akteDN2').value='';document.getElementById('akteStatus').value='aktiv';document.getElementById('akteNotiz').value='';}
+  renderAusbModal();openMod('akteMod');
+}
+</script>
+</body>
+</html>

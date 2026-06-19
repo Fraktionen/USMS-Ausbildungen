@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>USMS - Login</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#07090d;color:#e8eef8;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+    .box{text-align:center}
+    .spinner{width:32px;height:32px;border:3px solid rgba(201,168,76,.2);border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    p{color:#7a90b0;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner"></div>
+    <p>Discord Login wird verarbeitet...</p>
+  </div>
+  <script>
+    var hash = window.location.hash.substring(1);
+    var params = new URLSearchParams(hash);
+    var token = params.get("access_token");
+    if (token) {
+      sessionStorage.setItem("ausb_token", token);
+      window.location.href = "usms-ausbildung.html";
+    } else {
+      document.querySelector("p").textContent = "Login fehlgeschlagen.";
+      setTimeout(function(){ window.location.href = "usms-ausbildung.html"; }, 2000);
+    }
+  </script>
+</body>
+</html>
